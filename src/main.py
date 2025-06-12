@@ -173,7 +173,7 @@ def calculate_completion_rate(habit, checkins):
         return 0
 
     today = datetime.now().astimezone().date()
-    startDate = today - timedelta(days=7)
+    startDate = today - timedelta(days=14)
     habit_checkins = [checkin for checkin in habit_checkins if parse_date(checkin['checkinStamp']) >= startDate]
     
     total_days = (today - startDate).days + 1
