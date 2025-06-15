@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description="Prioritize habits")
 parser.add_argument('--test', action='store_true', help='Run in test mode (skip has_run_today check)')
 args = parser.parse_args()
 
-LAST_RUN_FILE = pathlib.Path(__file__).parent / ".last_run"
+LAST_RUN_FILE = pathlib.Path(__file__).parent / "../.last_run"
 HABITS_JSON_FILE = pathlib.Path("/home/pimania/miscSyncs/habits/habits.json")
 
 url = "https://api.ticktick.com/api/v2/habits"
@@ -28,6 +28,11 @@ headers = {
     "Content-Type": "application/json",
 }
 
+def getAbsPath(path):
+    basepath = os.path.dirname(__file__)
+    fullPath = os.path.abspath(os.path.join(basepath, path))
+
+    return fullPath
 
 def getConfig():
     configFileName = getAbsPath("../config.json")
