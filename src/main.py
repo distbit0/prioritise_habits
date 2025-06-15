@@ -29,6 +29,13 @@ headers = {
 }
 
 
+def getConfig():
+    configFileName = getAbsPath("../config.json")
+    with open(configFileName) as config:
+        config = json.loads(config.read())
+
+    return config
+
 def parse_repeat_rule(rrule_str):
     """
     Parses an RRULE string into a dictionary.
@@ -173,7 +180,7 @@ def calculate_completion_rate(habit, checkins):
         return 0
 
     today = datetime.now().astimezone().date()
-    startDate = today - timedelta(days=21)
+    startDate = today - timedelta(days=getConfig()["lookBackDays"])
     habit_checkins = [checkin for checkin in habit_checkins if parse_date(checkin['checkinStamp']) >= startDate]
     
     total_days = (today - startDate).days + 1
