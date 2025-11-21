@@ -42,5 +42,5 @@ def executeCommand(command):
         fullCommand = " ".join(command) + " &"
     else:
         fullCommand = command
-    logger.log(f"About to execute command: {fullCommand}")
+    # logger.log(f"About to execute command: {fullCommand}")
     os.system(fullCommand)
