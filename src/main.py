@@ -1,13 +1,21 @@
-import requests
-from datetime import datetime, timedelta
+import argparse
 import json
-import re
-from dotenv import load_dotenv
 import os
 import pathlib
-import argparse
+import re
+import sys
+from datetime import datetime, timedelta, timezone
+
+import requests
+from dotenv import load_dotenv
+from loguru import logger
 
 load_dotenv()
+
+# Log to stdout + file with rotation
+logger.remove()
+logger.add(sys.stdout, level="INFO")
+logger.add("app.log", rotation="30 KB", retention=5, level="INFO")
 
 # Add command line argument parser
 parser = argparse.ArgumentParser(description="Prioritize habits")
@@ -16,6 +24,7 @@ args = parser.parse_args()
 
 LAST_RUN_FILE = pathlib.Path(__file__).parent / "../.last_run"
 HABITS_JSON_FILE = pathlib.Path("/home/pimania/miscSyncs/habits/habits.json")
+NOTES_FILE = pathlib.Path("/home/pimania/notes/temp index.md")
 
 url = "https://api.ticktick.com/api/v2/habits"
 update_url = "https://api.ticktick.com/api/v2/habits/batch"
@@ -194,7 +203,9 @@ def calculate_completion_rate(habit, checkins):
     completed_count = len(habit_checkins) + 0.1 ## incase len(habit_checkins) is 0, so that the output still relfects scheduled_count
 
     completionRate = completed_count / scheduled_count if scheduled_count > 0 else 0
-    print(f"Habit: {habit['name'][:10]}, Rate: {completionRate}, Scheduled: {scheduled_count}, Completed: {completed_count}")
+    logger.info(
+        f"Habit: {habit['name'][:10]}, Rate: {completionRate}, Scheduled: {scheduled_count}, Completed: {completed_count}"
+    )
     return completionRate
 
 def sort_habits_by_completion_rate(habits, checkins):
@@ -230,7 +241,7 @@ def update_habit_text(habits):
         priority += 1
         old_name = habit["name"]
         new_name = f"{priority}. {remove_existing_prefix(old_name)}"
-        print(f"Updated: {old_name} -> {new_name}")
+        logger.info(f"Updated: {old_name} -> {new_name}")
         habit_update = habit.copy()  # Create a copy of the original habit
         habit_update["name"] = new_name  # Update the name
         updatedHabits.append(habit_update)
@@ -241,7 +252,7 @@ def update_habit_text(habits):
         response = requests.post(update_url, headers=headers, json=payload)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        print(f"An error occurred while updating the habit: {e}")
+        logger.error(f"An error occurred while updating the habit: {e}")
     
     return updatedHabits
 
@@ -265,9 +276,9 @@ def update_habit_sort_order(habits):
     try:
         response = requests.post(update_url, headers=headers, json=payload)
         response.raise_for_status()
-        print("Successfully updated habit sort order")
+        logger.info("Successfully updated habit sort order")
     except requests.exceptions.RequestException as e:
-        print(f"An error occurred while updating the habits: {e}")
+        logger.error(f"An error occurred while updating the habits: {e}")
 
     return updatedHabits
 
@@ -291,13 +302,80 @@ def save_habits_json(habits):
     HABITS_JSON_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(HABITS_JSON_FILE, "w") as f:
         json.dump(habits, f, indent=2)
-    print(f"Habits JSON saved to {HABITS_JSON_FILE}")
+    logger.info(f"Habits JSON saved to {HABITS_JSON_FILE}")
+
+
+def get_checkin_entry_for_date(habit_id, checkins, checkin_stamp):
+    habit_checkins = checkins.get(habit_id, [])
+    for checkin in habit_checkins:
+        if checkin.get("checkinStamp") == checkin_stamp:
+            return checkin
+    return None
+
+
+def build_checkin_payload(due_habits, checkins, checkin_stamp, checkin_time):
+    payload = {"add": [], "update": [], "delete": []}
+    for habit in due_habits:
+        habit_id = habit.get("id")
+        habit_goal = habit.get("goal")
+        if habit_goal is None:
+            logger.error(f"Missing goal for habit: {habit.get('name')} ({habit_id})")
+            continue
+
+        try:
+            habit_goal_value = float(habit_goal)
+        except (TypeError, ValueError):
+            logger.error(f"Invalid goal for habit: {habit.get('name')} ({habit_id}) -> {habit_goal}")
+            continue
+
+        existing_checkin = get_checkin_entry_for_date(habit_id, checkins, checkin_stamp)
+        if existing_checkin and existing_checkin.get("status") == 2:
+            continue
+
+        entry = {
+            "habitId": habit_id,
+            "checkinStamp": checkin_stamp,
+            "goal": habit_goal_value,
+            "value": habit_goal_value,
+            "status": 2,
+            "checkinTime": checkin_time,
+            "opTime": checkin_time,
+        }
+
+        if existing_checkin and existing_checkin.get("id"):
+            entry["id"] = existing_checkin["id"]
+            payload["update"].append(entry)
+        else:
+            payload["add"].append(entry)
+
+    return payload
+
+
+def post_habit_checkins(payload):
+    if not payload["add"] and not payload["update"]:
+        return None
+
+    response = requests.post("https://api.ticktick.com/api/v2/habitCheckins/batch", headers=headers, json=payload)
+    response.raise_for_status()
+    return response.json()
+
+
+def append_completed_habits(notes_path, habits, checkin_date):
+    if not habits:
+        return
+
+    notes_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(notes_path, "a") as notes_file:
+        for habit in habits:
+            habit_name = remove_existing_prefix(habit.get("name", "")).strip()
+            if habit_name:
+                notes_file.write(f"- {checkin_date.isoformat()} {habit_name}\n")
 
 
 
 def main():
     if not args.test and has_run_today():
-        print("Script has already run today. Exiting.")
+        logger.info("Script has already run today. Exiting.")
         return
 
     try:
@@ -325,7 +403,21 @@ def main():
         due_habits_today = get_habits_due_today(all_habits, checkins)
 
         if due_habits_today:
-            print(f"Found {len(due_habits_today)} long-term habits due today.")
+            logger.info(f"Found {len(due_habits_today)} long-term habits due today.")
+
+            today = datetime.now().astimezone().date()
+            checkin_stamp = int(today.strftime("%Y%m%d"))
+            checkin_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + ".000+0000"
+            payload = build_checkin_payload(due_habits_today, checkins, checkin_stamp, checkin_time)
+            completed_habit_ids = {entry["habitId"] for entry in payload["add"] + payload["update"]}
+            completed_habits = [habit for habit in due_habits_today if habit.get("id") in completed_habit_ids]
+            try:
+                post_habit_checkins(payload)
+                append_completed_habits(NOTES_FILE, completed_habits, today)
+                logger.info(f"Marked {len(completed_habits)} habits as completed and appended notes.")
+            except requests.exceptions.RequestException as e:
+                logger.error(f"An error occurred while posting habit checkins: {e}")
+                return
 
             # Sort habits by completion rate
             sorted_habits = sort_habits_by_completion_rate(due_habits_today, checkins)
@@ -333,13 +425,13 @@ def main():
             update_habit_sort_order(sorted_habits)
 
             update_last_run()
-            print("Script execution completed and last run time updated.")
+            logger.info("Script execution completed and last run time updated.")
         else:
-            print("No long-term habits due today.")
+            logger.info("No long-term habits due today.")
     except requests.exceptions.RequestException as e:
-        print(f"An error occurred while making the request: {e}")
+        logger.error(f"An error occurred while making the request: {e}")
     except json.JSONDecodeError as e:
-        print(f"Failed to parse JSON response: {e}")
+        logger.error(f"Failed to parse JSON response: {e}")
 
 
 if __name__ == "__main__":
