@@ -360,7 +360,7 @@ def post_habit_checkins(payload):
     return response.json()
 
 
-def append_completed_habits(notes_path, habits, checkin_date):
+def append_completed_habits(notes_path, habits):
     if not habits:
         return
 
@@ -369,7 +369,7 @@ def append_completed_habits(notes_path, habits, checkin_date):
         for habit in habits:
             habit_name = remove_existing_prefix(habit.get("name", "")).strip()
             if habit_name:
-                notes_file.write(f"- {checkin_date.isoformat()} {habit_name}\n")
+                notes_file.write(f"- {habit_name}\n")
 
 
 
@@ -413,7 +413,7 @@ def main():
             completed_habits = [habit for habit in due_habits_today if habit.get("id") in completed_habit_ids]
             try:
                 post_habit_checkins(payload)
-                append_completed_habits(NOTES_FILE, completed_habits, today)
+                append_completed_habits(NOTES_FILE, completed_habits)
                 logger.info(f"Marked {len(completed_habits)} habits as completed and appended notes.")
             except requests.exceptions.RequestException as e:
                 logger.error(f"An error occurred while posting habit checkins: {e}")
