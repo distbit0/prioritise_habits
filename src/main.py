@@ -19,7 +19,9 @@ logger.add("app.log", rotation="30 KB", retention=5, level="INFO")
 
 # Add command line argument parser
 parser = argparse.ArgumentParser(description="Prioritize habits")
-parser.add_argument('--test', action='store_true', help='Run in test mode (skip has_run_today check)')
+parser.add_argument(
+    "--test", action="store_true", help="Run in test mode (skip has_run_today check)"
+)
 args = parser.parse_args()
 
 LAST_RUN_FILE = pathlib.Path(__file__).parent / "../.last_run"
@@ -37,11 +39,13 @@ headers = {
     "Content-Type": "application/json",
 }
 
+
 def getAbsPath(path):
     basepath = os.path.dirname(__file__)
     fullPath = os.path.abspath(os.path.join(basepath, path))
 
     return fullPath
+
 
 def getConfig():
     configFileName = getAbsPath("../config.json")
@@ -49,6 +53,7 @@ def getConfig():
         config = json.loads(config.read())
 
     return config
+
 
 def parse_repeat_rule(rrule_str):
     """
@@ -59,13 +64,14 @@ def parse_repeat_rule(rrule_str):
     """
     rrule = {}
     if rrule_str.startswith("RRULE:"):
-        rrule_str = rrule_str[len("RRULE:"):]
+        rrule_str = rrule_str[len("RRULE:") :]
     parts = rrule_str.split(";")
     for part in parts:
         if "=" in part:
             key, value = part.split("=", 1)
             rrule[key] = value
     return rrule
+
 
 def byday_to_weekdays(byday_str):
     """
@@ -78,6 +84,7 @@ def byday_to_weekdays(byday_str):
     days = byday_str.split(",")
     weekdays = [day_mapping[day] for day in days if day in day_mapping]
     return weekdays
+
 
 def parse_date(date_input):
     """
@@ -99,6 +106,7 @@ def parse_date(date_input):
                 raise ValueError(f"Unrecognized date format: {date_input}")
     else:
         raise TypeError(f"Unsupported date input type: {type(date_input)}")
+
 
 def is_habit_due_on_date(habit, date, checkins, strict=False):
     """
@@ -137,7 +145,9 @@ def is_habit_due_on_date(habit, date, checkins, strict=False):
             if checkin_stamp:
                 try:
                     checkin_date = parse_date(checkin_stamp)
-                    if (latest_checkin_date is None) or (checkin_date > latest_checkin_date):
+                    if (latest_checkin_date is None) or (
+                        checkin_date > latest_checkin_date
+                    ):
                         latest_checkin_date = checkin_date
                 except (ValueError, TypeError):
                     continue
@@ -168,6 +178,7 @@ def is_habit_due_on_date(habit, date, checkins, strict=False):
     else:
         return False
 
+
 def get_habits_due_today(list_of_habits, checkins):
     """
     Returns a list of habits due today based on the provided habits and checkins.
@@ -177,7 +188,12 @@ def get_habits_due_today(list_of_habits, checkins):
     :return: List of habit dictionaries that are due today.
     """
     today = datetime.now().astimezone().date()
-    return [habit for habit in list_of_habits if is_habit_due_on_date(habit, today, checkins)]
+    return [
+        habit
+        for habit in list_of_habits
+        if is_habit_due_on_date(habit, today, checkins)
+    ]
+
 
 def calculate_completion_rate(habit, checkins):
     """
@@ -195,18 +211,31 @@ def calculate_completion_rate(habit, checkins):
 
     today = datetime.now().astimezone().date()
     startDate = today - timedelta(days=getConfig()["lookBackDays"])
-    habit_checkins = [checkin for checkin in habit_checkins if parse_date(checkin['checkinStamp']) >= startDate]
-    
+    habit_checkins = [
+        checkin
+        for checkin in habit_checkins
+        if parse_date(checkin["checkinStamp"]) >= startDate
+    ]
+
     total_days = (today - startDate).days + 1
 
-    scheduled_count = sum(1 for day in range(total_days) if is_habit_due_on_date(habit, startDate + timedelta(days=day), checkins, strict=False))
-    completed_count = len(habit_checkins) + 0.1 ## incase len(habit_checkins) is 0, so that the output still relfects scheduled_count
+    scheduled_count = sum(
+        1
+        for day in range(total_days)
+        if is_habit_due_on_date(
+            habit, startDate + timedelta(days=day), checkins, strict=False
+        )
+    )
+    completed_count = (
+        len(habit_checkins) + 0.1
+    )  ## incase len(habit_checkins) is 0, so that the output still relfects scheduled_count
 
     completionRate = completed_count / scheduled_count if scheduled_count > 0 else 0
     logger.info(
         f"Habit: {habit['name'][:10]}, Rate: {completionRate}, Scheduled: {scheduled_count}, Completed: {completed_count}"
     )
     return completionRate
+
 
 def sort_habits_by_completion_rate(habits, checkins):
     """
@@ -216,22 +245,23 @@ def sort_habits_by_completion_rate(habits, checkins):
     :param checkins: Dictionary mapping habit IDs to lists of checkin dictionaries.
     :return: List of habits sorted by completion rate (ascending).
     """
+
     def get_sort_key(habit):
         name = habit["name"]
         # Check for @ character first
-        if '@' in name:
+        if "@" in name:
             return (-1, 0)  # Lowest first value to sort to top
-        match = re.search(r'\^(\d*)', name)
+        match = re.search(r"\^(\d*)", name)
         if match:
             number = match.group(1)
-            if number == '':
+            if number == "":
                 return (0, 1)  # Treat ^ without a number as ^1
             return (0, int(number))
         return (1, 0)  # Habits without ^ or @ come in the middle
 
     habits = sorted(habits, key=lambda h: calculate_completion_rate(h, checkins))
     habits = sorted(habits, key=get_sort_key)
-    return habits   
+    return habits
 
 
 def update_habit_text(habits):
@@ -253,21 +283,21 @@ def update_habit_text(habits):
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         logger.error(f"An error occurred while updating the habit: {e}")
-    
+
     return updatedHabits
 
 
 def update_habit_sort_order(habits):
     updatedHabits = []
     for habit in habits:
-        habit_update = habit.copy()  
+        habit_update = habit.copy()
         # Check for priority in the habit name
         priority_match = re.match(r"^(\d+)\.\s", habit["name"])
         if priority_match:
             priority = int(priority_match.group(1))
         else:
-            priority = (len(updatedHabits) + 1) * 1000000000  
-        
+            priority = (len(updatedHabits) + 1) * 1000000000
+
         habit_update["sortOrder"] = priority
         updatedHabits.append(habit_update)
 
@@ -281,6 +311,7 @@ def update_habit_sort_order(habits):
         logger.error(f"An error occurred while updating the habits: {e}")
 
     return updatedHabits
+
 
 def remove_existing_prefix(name):
     return re.sub(r"^\d+\.\s*", "", name)
@@ -325,7 +356,9 @@ def build_checkin_payload(due_habits, checkins, checkin_stamp, checkin_time):
         try:
             habit_goal_value = float(habit_goal)
         except (TypeError, ValueError):
-            logger.error(f"Invalid goal for habit: {habit.get('name')} ({habit_id}) -> {habit_goal}")
+            logger.error(
+                f"Invalid goal for habit: {habit.get('name')} ({habit_id}) -> {habit_goal}"
+            )
             continue
 
         existing_checkin = get_checkin_entry_for_date(habit_id, checkins, checkin_stamp)
@@ -355,7 +388,11 @@ def post_habit_checkins(payload):
     if not payload["add"] and not payload["update"]:
         return None
 
-    response = requests.post("https://api.ticktick.com/api/v2/habitCheckins/batch", headers=headers, json=payload)
+    response = requests.post(
+        "https://api.ticktick.com/api/v2/habitCheckins/batch",
+        headers=headers,
+        json=payload,
+    )
     response.raise_for_status()
     return response.json()
 
@@ -369,8 +406,8 @@ def append_completed_habits(notes_path, habits):
         for habit in habits:
             habit_name = remove_existing_prefix(habit.get("name", "")).strip()
             if habit_name:
-                notes_file.write(f"- {habit_name}\n")
-
+                notes_file.write(f"\n\n- {habit_name}")
+        notes_file.write("\n")
 
 
 def main():
@@ -407,14 +444,26 @@ def main():
 
             today = datetime.now().astimezone().date()
             checkin_stamp = int(today.strftime("%Y%m%d"))
-            checkin_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + ".000+0000"
-            payload = build_checkin_payload(due_habits_today, checkins, checkin_stamp, checkin_time)
-            completed_habit_ids = {entry["habitId"] for entry in payload["add"] + payload["update"]}
-            completed_habits = [habit for habit in due_habits_today if habit.get("id") in completed_habit_ids]
+            checkin_time = (
+                datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + ".000+0000"
+            )
+            payload = build_checkin_payload(
+                due_habits_today, checkins, checkin_stamp, checkin_time
+            )
+            completed_habit_ids = {
+                entry["habitId"] for entry in payload["add"] + payload["update"]
+            }
+            completed_habits = [
+                habit
+                for habit in due_habits_today
+                if habit.get("id") in completed_habit_ids
+            ]
             try:
                 post_habit_checkins(payload)
                 append_completed_habits(NOTES_FILE, completed_habits)
-                logger.info(f"Marked {len(completed_habits)} habits as completed and appended notes.")
+                logger.info(
+                    f"Marked {len(completed_habits)} habits as completed and appended notes."
+                )
             except requests.exceptions.RequestException as e:
                 logger.error(f"An error occurred while posting habit checkins: {e}")
                 return
