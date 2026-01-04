@@ -406,7 +406,7 @@ def append_completed_habits(notes_path, habits):
         for habit in habits:
             habit_name = remove_existing_prefix(habit.get("name", "")).strip()
             if habit_name:
-                notes_file.write(f"\n\n- {habit_name.lower()}")
+                notes_file.write(f"\n\n{habit_name.lower()}")
         notes_file.write("\n")
 
 
