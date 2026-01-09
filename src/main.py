@@ -402,11 +402,33 @@ def append_completed_habits(notes_path, habits):
         return
 
     notes_path.parent.mkdir(parents=True, exist_ok=True)
+    habit_lines = [
+        remove_existing_prefix(habit.get("name", "")).strip().lower()
+        for habit in habits
+    ]
+    habit_lines = [line for line in habit_lines if line]
+    if not habit_lines:
+        return
+
+    existing_lines = []
+    if notes_path.exists():
+        with open(notes_path, "r") as notes_file:
+            existing_lines = notes_file.readlines()
+
+    filtered_lines = [
+        line for line in existing_lines if line.strip() not in habit_lines
+    ]
+    if len(filtered_lines) != len(existing_lines):
+        logger.info(
+            f"Removed {len(existing_lines) - len(filtered_lines)} duplicate lines from {notes_path}"
+        )
+
+    with open(notes_path, "w") as notes_file:
+        notes_file.writelines(filtered_lines)
+
     with open(notes_path, "a") as notes_file:
-        for habit in habits:
-            habit_name = remove_existing_prefix(habit.get("name", "")).strip()
-            if habit_name:
-                notes_file.write(f"\n\n{habit_name.lower()}")
+        for habit_line in habit_lines:
+            notes_file.write(f"\n\n{habit_line}")
         notes_file.write("\n")
 
 
