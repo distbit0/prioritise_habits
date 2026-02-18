@@ -26,6 +26,7 @@ args = parser.parse_args()
 
 LAST_RUN_FILE = pathlib.Path(__file__).parent / "../.last_run"
 LAST_NOTES_APPEND_FILE = pathlib.Path(__file__).parent / "../.last_notes_append"
+PENDING_NOTES_HABITS_FILE = pathlib.Path(__file__).parent / "../.pending_notes_habits"
 HABITS_JSON_FILE = pathlib.Path("/home/pimania/miscSyncs/habits/habits.json")
 NOTES_FILE = pathlib.Path("/home/pimania/notes/temp index.md")
 NOTES_APPEND_INTERVAL = timedelta(hours=3)
@@ -400,9 +401,6 @@ def post_habit_checkins(payload):
 
 
 def append_completed_habits(notes_path, habits):
-    if not habits:
-        return
-
     notes_path.parent.mkdir(parents=True, exist_ok=True)
     normalized_habit_lines = [
         remove_existing_prefix(habit.get("name", "")).strip().lower()
@@ -412,8 +410,6 @@ def append_completed_habits(notes_path, habits):
     for line in normalized_habit_lines:
         if line and line not in candidate_habit_lines:
             candidate_habit_lines.append(line)
-    if not candidate_habit_lines:
-        return
 
     existing_lines = []
     if notes_path.exists():
@@ -421,11 +417,20 @@ def append_completed_habits(notes_path, habits):
             existing_lines = notes_file.readlines()
 
     existing_line_set = {line.strip() for line in existing_lines if line.strip()}
-    new_habit_lines = [
-        line for line in candidate_habit_lines if line not in existing_line_set
-    ]
-    if not new_habit_lines:
-        logger.info(f"No new habit lines to append to {notes_path}")
+    pending_habit_lines = []
+    if PENDING_NOTES_HABITS_FILE.exists():
+        with open(PENDING_NOTES_HABITS_FILE, "r") as pending_file:
+            pending_habit_lines = json.load(pending_file)
+
+    merged_habit_lines = []
+    for line in pending_habit_lines + candidate_habit_lines:
+        if line not in merged_habit_lines and line not in existing_line_set:
+            merged_habit_lines.append(line)
+
+    if not merged_habit_lines:
+        if PENDING_NOTES_HABITS_FILE.exists():
+            PENDING_NOTES_HABITS_FILE.unlink()
+        logger.info(f"No pending habit lines to append to {notes_path}")
         return
 
     now = datetime.now(timezone.utc)
@@ -438,13 +443,21 @@ def append_completed_habits(notes_path, habits):
             logger.info(
                 f"Skipping notes append until {next_append_time.isoformat()} (UTC)"
             )
+            with open(PENDING_NOTES_HABITS_FILE, "w") as pending_file:
+                json.dump(merged_habit_lines, pending_file)
             return
 
-    next_habit_line = new_habit_lines[0]
+    next_habit_line = merged_habit_lines[0]
     with open(notes_path, "a") as notes_file:
         notes_file.write(f"\n\n{next_habit_line}")
         notes_file.write("\n")
     LAST_NOTES_APPEND_FILE.touch()
+    remaining_habit_lines = merged_habit_lines[1:]
+    if remaining_habit_lines:
+        with open(PENDING_NOTES_HABITS_FILE, "w") as pending_file:
+            json.dump(remaining_habit_lines, pending_file)
+    elif PENDING_NOTES_HABITS_FILE.exists():
+        PENDING_NOTES_HABITS_FILE.unlink()
     logger.info(f"Appended one new habit line to {notes_path}: {next_habit_line}")
 
 
@@ -515,6 +528,7 @@ def main():
             logger.info("Script execution completed and last run time updated.")
         else:
             logger.info("No long-term habits due today.")
+            append_completed_habits(NOTES_FILE, [])
     except requests.exceptions.RequestException as e:
         logger.error(f"An error occurred while making the request: {e}")
     except json.JSONDecodeError as e:
