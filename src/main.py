@@ -25,8 +25,10 @@ parser.add_argument(
 args = parser.parse_args()
 
 LAST_RUN_FILE = pathlib.Path(__file__).parent / "../.last_run"
+LAST_NOTES_APPEND_FILE = pathlib.Path(__file__).parent / "../.last_notes_append"
 HABITS_JSON_FILE = pathlib.Path("/home/pimania/miscSyncs/habits/habits.json")
 NOTES_FILE = pathlib.Path("/home/pimania/notes/temp index.md")
+NOTES_APPEND_INTERVAL = timedelta(hours=3)
 
 url = "https://api.ticktick.com/api/v2/habits"
 update_url = "https://api.ticktick.com/api/v2/habits/batch"
@@ -402,12 +404,15 @@ def append_completed_habits(notes_path, habits):
         return
 
     notes_path.parent.mkdir(parents=True, exist_ok=True)
-    habit_lines = [
+    normalized_habit_lines = [
         remove_existing_prefix(habit.get("name", "")).strip().lower()
         for habit in habits
     ]
-    habit_lines = [line for line in habit_lines if line]
-    if not habit_lines:
+    candidate_habit_lines = []
+    for line in normalized_habit_lines:
+        if line and line not in candidate_habit_lines:
+            candidate_habit_lines.append(line)
+    if not candidate_habit_lines:
         return
 
     existing_lines = []
@@ -415,21 +420,32 @@ def append_completed_habits(notes_path, habits):
         with open(notes_path, "r") as notes_file:
             existing_lines = notes_file.readlines()
 
-    filtered_lines = [
-        line for line in existing_lines if line.strip() not in habit_lines
+    existing_line_set = {line.strip() for line in existing_lines if line.strip()}
+    new_habit_lines = [
+        line for line in candidate_habit_lines if line not in existing_line_set
     ]
-    if len(filtered_lines) != len(existing_lines):
-        logger.info(
-            f"Removed {len(existing_lines) - len(filtered_lines)} duplicate lines from {notes_path}"
+    if not new_habit_lines:
+        logger.info(f"No new habit lines to append to {notes_path}")
+        return
+
+    now = datetime.now(timezone.utc)
+    if LAST_NOTES_APPEND_FILE.exists():
+        last_append = datetime.fromtimestamp(
+            LAST_NOTES_APPEND_FILE.stat().st_mtime, timezone.utc
         )
+        next_append_time = last_append + NOTES_APPEND_INTERVAL
+        if now < next_append_time:
+            logger.info(
+                f"Skipping notes append until {next_append_time.isoformat()} (UTC)"
+            )
+            return
 
-    with open(notes_path, "w") as notes_file:
-        notes_file.writelines(filtered_lines)
-
+    next_habit_line = new_habit_lines[0]
     with open(notes_path, "a") as notes_file:
-        for habit_line in habit_lines:
-            notes_file.write(f"\n\n{habit_line}")
+        notes_file.write(f"\n\n{next_habit_line}")
         notes_file.write("\n")
+    LAST_NOTES_APPEND_FILE.touch()
+    logger.info(f"Appended one new habit line to {notes_path}: {next_habit_line}")
 
 
 def main():
