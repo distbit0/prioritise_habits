@@ -6,10 +6,7 @@ authors = [
     {name = "distbit", email = "adp01@pm.me"},
 ]
 dependencies = [
-    "python-dotenv",
     "loguru",
-    "PySnooper",
-    "requests",
 ]
 requires-python = ">=3.13"
 license = {text = "UNLICENCE"}
@@ -24,3 +21,8 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]

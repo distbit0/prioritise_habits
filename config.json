@@ -1,3 +1,4 @@
 {
-    "lookBackDays": 21
+  "lookBackDays": 21,
+  "habitsStoreFile": "./habits_store.json"
 }
