@@ -201,9 +201,8 @@ def is_habit_due_on_date(habit, date, checkins, strict=False):
 
             if strict:
                 return (
-                    (target_start_date - date).days % interval == 0
-                    and target_start_date <= date
-                )
+                    target_start_date - date
+                ).days % interval == 0 and target_start_date <= date
             return target_start_date <= date
         return True
 
@@ -288,7 +287,8 @@ def sort_habits_by_completion_rate(habits, checkins, look_back_days):
         return (1, 0)
 
     sorted_by_completion = sorted(
-        habits, key=lambda habit: calculate_completion_rate(habit, checkins, look_back_days)
+        habits,
+        key=lambda habit: calculate_completion_rate(habit, checkins, look_back_days),
     )
     return sorted(sorted_by_completion, key=get_sort_key)
 
