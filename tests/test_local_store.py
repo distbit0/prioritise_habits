@@ -1,8 +1,16 @@
 import json
+from datetime import datetime, timezone
 
 import pytest
 
-from src.main import apply_checkin_payload, load_habit_store, merge_habit_updates
+from src.main import (
+    apply_checkin_payload,
+    get_completed_habits_after_ready_triggers,
+    get_ready_habit_triggers,
+    load_habit_store,
+    merge_habit_updates,
+    sample_notes_trigger_time,
+)
 
 
 def write_store(tmp_path, payload):
@@ -110,3 +118,84 @@ def test_merge_habit_updates_rejects_unknown_habit_id():
 
     with pytest.raises(ValueError, match="Cannot update missing habits"):
         merge_habit_updates(all_habits, updated_habits)
+
+
+def test_ready_habit_triggers_uses_persisted_daily_schedule(tmp_path):
+    schedule_path = tmp_path / "schedule.json"
+    schedule_path.write_text(
+        json.dumps(
+            {
+                "date": "20260410",
+                "triggers": {
+                    "habit-1": [
+                        {
+                            "time": "2026-04-10T06:30:00+00:00",
+                            "triggered": False,
+                        },
+                        {
+                            "time": "2026-04-10T11:30:00+00:00",
+                            "triggered": False,
+                        },
+                    ]
+                },
+            }
+        )
+    )
+    due_habits = [
+        {
+            "id": "habit-1",
+            "name": "Sequence",
+            "dailyTriggerCount": 2,
+        }
+    ]
+
+    ready_triggers, schedule = get_ready_habit_triggers(
+        due_habits,
+        schedule_path,
+        datetime(2026, 4, 10, 9, 0, tzinfo=timezone.utc),
+    )
+
+    assert len(ready_triggers) == 1
+    assert ready_triggers[0]["habit"]["id"] == "habit-1"
+    assert schedule["triggers"]["habit-1"][1]["triggered"] is False
+
+
+def test_sample_notes_trigger_time_stays_in_morning_window():
+    trigger_time = sample_notes_trigger_time(
+        datetime(2026, 4, 10, tzinfo=timezone.utc).date(),
+        timezone.utc,
+    )
+
+    assert trigger_time.hour >= 6
+    assert trigger_time.hour <= 12
+
+
+def test_completed_habit_waits_for_all_daily_triggers():
+    habit = {"id": "habit-1", "name": "Sequence"}
+    schedule = {
+        "date": "20260410",
+        "triggers": {
+            "habit-1": [
+                {"time": "2026-04-10T06:30:00+00:00", "triggered": False},
+                {"time": "2026-04-10T11:30:00+00:00", "triggered": False},
+            ]
+        },
+    }
+
+    first_completed_habits, first_checkin_times = get_completed_habits_after_ready_triggers(
+        [{"habit": habit, "trigger": schedule["triggers"]["habit-1"][0]}],
+        schedule,
+    )
+
+    assert first_completed_habits == []
+    assert first_checkin_times == {}
+
+    second_completed_habits, second_checkin_times = (
+        get_completed_habits_after_ready_triggers(
+            [{"habit": habit, "trigger": schedule["triggers"]["habit-1"][1]}],
+            schedule,
+        )
+    )
+
+    assert second_completed_habits == [habit]
+    assert second_checkin_times["habit-1"] == "2026-04-10T11:30:00.000+0000"

@@ -1,19 +1,20 @@
 import argparse
 import json
 import pathlib
+import random
 import re
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
 
 from loguru import logger
 
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parent.parent
 CONFIG_FILE = PROJECT_ROOT / "config.json"
 LAST_RUN_FILE = PROJECT_ROOT / ".last_run"
-LAST_NOTES_APPEND_FILE = PROJECT_ROOT / ".last_notes_append"
-PENDING_NOTES_HABITS_FILE = PROJECT_ROOT / ".pending_notes_habits"
+NOTES_TRIGGER_SCHEDULE_FILE = PROJECT_ROOT / ".notes_habit_trigger_schedule"
 NOTES_FILE = pathlib.Path("/home/pimania/notes/temp index.md")
-NOTES_APPEND_INTERVAL = timedelta(hours=3)
+NOTES_TRIGGER_START = time(6, 0)
+NOTES_TRIGGER_END = time(12, 0)
 
 # Log to stdout + file with rotation
 logger.remove()
@@ -26,7 +27,7 @@ def parse_arguments():
     parser.add_argument(
         "--test",
         action="store_true",
-        help="Run in test mode (skip has_run_today check)",
+        help="Run in test mode",
     )
     return parser.parse_args()
 
@@ -346,16 +347,84 @@ def remove_existing_prefix(name):
     return re.sub(r"^\d+\.\s*", "", name)
 
 
-def has_run_today():
-    if not LAST_RUN_FILE.exists():
-        return False
-    current_date = datetime.now().date()
-    last_run = datetime.fromtimestamp(LAST_RUN_FILE.stat().st_mtime)
-    return current_date == last_run.date()
-
-
 def update_last_run():
     LAST_RUN_FILE.touch()
+
+
+def format_ticktick_time(timestamp):
+    return (
+        timestamp.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + ".000+0000"
+    )
+
+
+def get_habit_daily_trigger_count(habit):
+    trigger_count = habit.get("dailyTriggerCount", 1)
+    if not isinstance(trigger_count, int) or trigger_count < 1:
+        raise ValueError(
+            f"Habit '{habit.get('name')}' dailyTriggerCount must be a positive integer"
+        )
+    return trigger_count
+
+
+def sample_notes_trigger_time(trigger_date, local_timezone):
+    trigger_start = datetime.combine(trigger_date, NOTES_TRIGGER_START, local_timezone)
+    trigger_end = datetime.combine(trigger_date, NOTES_TRIGGER_END, local_timezone)
+    trigger_seconds = int((trigger_end - trigger_start).total_seconds())
+    return trigger_start + timedelta(seconds=random.randint(0, trigger_seconds))
+
+
+def load_notes_trigger_schedule(schedule_path, schedule_date):
+    if not schedule_path.exists():
+        return {"date": schedule_date, "triggers": {}}
+
+    with open(schedule_path, "r") as schedule_file:
+        schedule = json.load(schedule_file)
+
+    if schedule.get("date") != schedule_date:
+        return {"date": schedule_date, "triggers": {}}
+    if not isinstance(schedule.get("triggers"), dict):
+        raise ValueError("Notes trigger schedule field 'triggers' must be an object")
+    return schedule
+
+
+def save_notes_trigger_schedule(schedule_path, schedule):
+    with open(schedule_path, "w") as schedule_file:
+        json.dump(schedule, schedule_file, indent=2)
+
+
+def get_ready_habit_triggers(due_habits, schedule_path, now):
+    schedule_date = now.strftime("%Y%m%d")
+    schedule = load_notes_trigger_schedule(schedule_path, schedule_date)
+    scheduled_triggers = schedule["triggers"]
+    due_habits_by_id = {str(habit["id"]): habit for habit in due_habits}
+
+    for habit_id, habit in due_habits_by_id.items():
+        habit_triggers = scheduled_triggers.setdefault(habit_id, [])
+        while len(habit_triggers) < get_habit_daily_trigger_count(habit):
+            habit_triggers.append(
+                {
+                    "time": sample_notes_trigger_time(
+                        now.date(), now.tzinfo
+                    ).isoformat(),
+                    "triggered": False,
+                }
+            )
+        habit_triggers.sort(key=lambda trigger: trigger["time"])
+
+    ready_triggers = []
+    for habit_id, habit_triggers in scheduled_triggers.items():
+        habit = due_habits_by_id.get(habit_id)
+        if habit is None:
+            continue
+        for trigger in habit_triggers:
+            if trigger.get("triggered"):
+                continue
+            trigger_time = datetime.fromisoformat(trigger["time"])
+            if trigger_time <= now:
+                ready_triggers.append({"habit": habit, "trigger": trigger})
+
+    ready_triggers.sort(key=lambda item: item["trigger"]["time"])
+    return ready_triggers, schedule
 
 
 def get_checkin_entry_for_date(habit_id, checkins, checkin_stamp):
@@ -366,10 +435,13 @@ def get_checkin_entry_for_date(habit_id, checkins, checkin_stamp):
     return None
 
 
-def build_checkin_payload(due_habits, checkins, checkin_stamp, checkin_time):
+def build_checkin_payload(
+    due_habits, checkins, checkin_stamp, checkin_times_by_habit_id
+):
     payload = {"add": [], "update": [], "delete": []}
     for habit in due_habits:
         habit_id = habit.get("id")
+        checkin_time = checkin_times_by_habit_id[str(habit_id)]
         habit_goal = habit.get("goal")
         if habit_goal is None:
             logger.error(f"Missing goal for habit: {habit.get('name')} ({habit_id})")
@@ -451,16 +523,11 @@ def apply_checkin_payload(checkins, payload):
     return applied_count
 
 
-def append_completed_habits(notes_path, habits):
+def append_ready_habit_triggers(notes_path, ready_triggers):
+    if not ready_triggers:
+        return 0
+
     notes_path.parent.mkdir(parents=True, exist_ok=True)
-    normalized_habit_lines = [
-        remove_existing_prefix(habit.get("name", "")).strip().lower()
-        for habit in habits
-    ]
-    candidate_habit_lines = []
-    for line in normalized_habit_lines:
-        if line and line not in candidate_habit_lines:
-            candidate_habit_lines.append(line)
 
     existing_lines = []
     if notes_path.exists():
@@ -468,56 +535,51 @@ def append_completed_habits(notes_path, habits):
             existing_lines = notes_file.readlines()
 
     existing_line_set = {line.strip() for line in existing_lines if line.strip()}
-    pending_habit_lines = []
-    if PENDING_NOTES_HABITS_FILE.exists():
-        with open(PENDING_NOTES_HABITS_FILE, "r") as pending_file:
-            pending_habit_lines = json.load(pending_file)
+    habit_lines = [
+        remove_existing_prefix(item["habit"].get("name", "")).strip().lower()
+        for item in ready_triggers
+    ]
+    new_habit_lines = [
+        line for line in habit_lines if line and line not in existing_line_set
+    ]
+    if not new_habit_lines:
+        logger.info(f"No new habit lines to append to {notes_path}")
+        return 0
 
-    merged_habit_lines = []
-    for line in pending_habit_lines + candidate_habit_lines:
-        if line not in merged_habit_lines and line not in existing_line_set:
-            merged_habit_lines.append(line)
-
-    if not merged_habit_lines:
-        if PENDING_NOTES_HABITS_FILE.exists():
-            PENDING_NOTES_HABITS_FILE.unlink()
-        logger.info(f"No pending habit lines to append to {notes_path}")
-        return
-
-    now = datetime.now(timezone.utc)
-    if LAST_NOTES_APPEND_FILE.exists():
-        last_append = datetime.fromtimestamp(
-            LAST_NOTES_APPEND_FILE.stat().st_mtime, timezone.utc
-        )
-        next_append_time = last_append + NOTES_APPEND_INTERVAL
-        if now < next_append_time:
-            logger.info(
-                f"Skipping notes append until {next_append_time.isoformat()} (UTC)"
-            )
-            with open(PENDING_NOTES_HABITS_FILE, "w") as pending_file:
-                json.dump(merged_habit_lines, pending_file)
-            return
-
-    next_habit_line = merged_habit_lines[0]
     with open(notes_path, "a") as notes_file:
-        notes_file.write(f"\n\n{next_habit_line}")
+        for habit_line in new_habit_lines:
+            notes_file.write(f"\n\n{habit_line}")
         notes_file.write("\n")
-    LAST_NOTES_APPEND_FILE.touch()
-    remaining_habit_lines = merged_habit_lines[1:]
-    if remaining_habit_lines:
-        with open(PENDING_NOTES_HABITS_FILE, "w") as pending_file:
-            json.dump(remaining_habit_lines, pending_file)
-    elif PENDING_NOTES_HABITS_FILE.exists():
-        PENDING_NOTES_HABITS_FILE.unlink()
-    logger.info(f"Appended one new habit line to {notes_path}: {next_habit_line}")
+    logger.info(f"Appended {len(new_habit_lines)} habit triggers to {notes_path}")
+    return len(new_habit_lines)
+
+
+def get_completed_habits_after_ready_triggers(ready_triggers, schedule):
+    for item in ready_triggers:
+        item["trigger"]["triggered"] = True
+
+    ready_habits_by_id = {
+        str(item["habit"]["id"]): item["habit"] for item in ready_triggers
+    }
+    completed_habits = []
+    checkin_times_by_habit_id = {}
+    for habit_id, habit in ready_habits_by_id.items():
+        habit_triggers = schedule["triggers"][habit_id]
+        if not all(trigger.get("triggered") for trigger in habit_triggers):
+            continue
+        completed_habits.append(habit)
+        latest_trigger_time = max(
+            datetime.fromisoformat(trigger["time"]) for trigger in habit_triggers
+        )
+        checkin_times_by_habit_id[habit_id] = format_ticktick_time(latest_trigger_time)
+    return completed_habits, checkin_times_by_habit_id
 
 
 def main(test_mode=None):
     args = parse_arguments() if test_mode is None else None
     run_in_test_mode = args.test if args else test_mode
-    if not run_in_test_mode and has_run_today():
-        logger.info("Script has already run today. Exiting.")
-        return
+    if run_in_test_mode:
+        logger.info("Running in test mode.")
 
     try:
         config = load_config()
@@ -530,28 +592,36 @@ def main(test_mode=None):
         if due_habits_today:
             logger.info(f"Found {len(due_habits_today)} long-term habits due today.")
 
-            today = datetime.now().astimezone().date()
+            now = datetime.now().astimezone()
+            ready_triggers, notes_trigger_schedule = get_ready_habit_triggers(
+                due_habits_today, NOTES_TRIGGER_SCHEDULE_FILE, now
+            )
+            appended_trigger_count = append_ready_habit_triggers(
+                NOTES_FILE, ready_triggers
+            )
+            completed_habits, checkin_times_by_habit_id = (
+                get_completed_habits_after_ready_triggers(
+                    ready_triggers, notes_trigger_schedule
+                )
+            )
+            save_notes_trigger_schedule(
+                NOTES_TRIGGER_SCHEDULE_FILE, notes_trigger_schedule
+            )
+
+            today = now.date()
             checkin_stamp = int(today.strftime("%Y%m%d"))
-            checkin_time = (
-                datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + ".000+0000"
-            )
             payload = build_checkin_payload(
-                due_habits_today, checkins, checkin_stamp, checkin_time
+                completed_habits, checkins, checkin_stamp, checkin_times_by_habit_id
             )
-            completed_habit_ids = {
+            checkins_to_apply = [
                 entry["habitId"] for entry in payload["add"] + payload["update"]
-            }
-            completed_habits = [
-                habit
-                for habit in due_habits_today
-                if habit.get("id") in completed_habit_ids
             ]
 
             applied_checkins = apply_checkin_payload(checkins, payload)
-            append_completed_habits(NOTES_FILE, completed_habits)
             logger.info(
-                f"Marked {len(completed_habits)} habits as completed, "
-                f"applied {applied_checkins} checkins, and appended notes."
+                f"Appended {appended_trigger_count} ready habit triggers, "
+                f"marked {len(checkins_to_apply)} habits as completed, "
+                f"and applied {applied_checkins} checkins."
             )
 
             sorted_habits = sort_habits_by_completion_rate(
@@ -566,7 +636,6 @@ def main(test_mode=None):
             logger.info("Script execution completed and last run time updated.")
         else:
             logger.info("No long-term habits due today.")
-            append_completed_habits(NOTES_FILE, [])
     except FileNotFoundError as error:
         logger.error(f"Missing required file: {error}")
     except (json.JSONDecodeError, ValueError, KeyError, TypeError) as error:
