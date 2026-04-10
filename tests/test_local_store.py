@@ -5,11 +5,14 @@ import pytest
 
 from src.main import (
     apply_checkin_payload,
+    create_persistent_desktop_notifications,
+    get_habit_due_outputs,
     get_completed_habits_after_ready_triggers,
     get_ready_habit_triggers,
+    get_ready_triggers_for_due_output,
     load_habit_store,
     merge_habit_updates,
-    sample_notes_trigger_time,
+    sample_habit_trigger_time,
 )
 
 
@@ -46,6 +49,63 @@ def test_load_habit_store_rejects_habit_without_id(tmp_path):
 
     with pytest.raises(ValueError, match="must include an 'id'"):
         load_habit_store(store_path)
+
+
+def test_load_habit_store_rejects_invalid_due_output(tmp_path):
+    store_path = write_store(
+        tmp_path,
+        {
+            "habits": [
+                {
+                    "id": "habit-1",
+                    "name": "Read",
+                    "dueOutputs": {"writeToMd": "yes"},
+                }
+            ],
+            "checkins": {},
+        },
+    )
+
+    with pytest.raises(ValueError, match="dueOutputs.writeToMd must be a boolean"):
+        load_habit_store(store_path)
+
+
+def test_habit_due_outputs_default_to_md_only():
+    habit = {"id": "habit-1", "name": "Read"}
+
+    assert get_habit_due_outputs(habit) == {
+        "writeToMd": True,
+        "desktopNotification": False,
+    }
+
+
+def test_ready_triggers_are_filtered_by_due_output():
+    ready_triggers = [
+        {
+            "habit": {
+                "id": "habit-1",
+                "name": "Read",
+                "dueOutputs": {"writeToMd": True, "desktopNotification": False},
+            },
+            "trigger": {},
+        },
+        {
+            "habit": {
+                "id": "habit-2",
+                "name": "Reply",
+                "dueOutputs": {"writeToMd": False, "desktopNotification": True},
+            },
+            "trigger": {},
+        },
+    ]
+
+    md_triggers = get_ready_triggers_for_due_output(ready_triggers, "writeToMd")
+    notification_triggers = get_ready_triggers_for_due_output(
+        ready_triggers, "desktopNotification"
+    )
+
+    assert [item["habit"]["id"] for item in md_triggers] == ["habit-1"]
+    assert [item["habit"]["id"] for item in notification_triggers] == ["habit-2"]
 
 
 def test_apply_checkin_payload_add_and_update():
@@ -160,14 +220,47 @@ def test_ready_habit_triggers_uses_persisted_daily_schedule(tmp_path):
     assert schedule["triggers"]["habit-1"][1]["triggered"] is False
 
 
-def test_sample_notes_trigger_time_stays_in_morning_window():
-    trigger_time = sample_notes_trigger_time(
+def test_sample_habit_trigger_time_stays_in_morning_window():
+    trigger_time = sample_habit_trigger_time(
         datetime(2026, 4, 10, tzinfo=timezone.utc).date(),
         timezone.utc,
     )
 
     assert trigger_time.hour >= 6
     assert trigger_time.hour <= 12
+
+
+def test_persistent_desktop_notifications_use_notify_send(monkeypatch):
+    calls = []
+
+    def fake_run(command, check):
+        calls.append({"command": command, "check": check})
+
+    monkeypatch.setattr("src.main.subprocess.run", fake_run)
+
+    notification_count = create_persistent_desktop_notifications(
+        [
+            {
+                "habit": {"id": "habit-1", "name": "1. Reply to unread msg"},
+                "trigger": {},
+            }
+        ]
+    )
+
+    assert notification_count == 1
+    assert calls == [
+        {
+            "command": [
+                "notify-send",
+                "--app-name=prioritise_habits",
+                "--urgency=critical",
+                "--expire-time=0",
+                "Habit due",
+                "Reply to unread msg",
+            ],
+            "check": True,
+        }
+    ]
 
 
 def test_completed_habit_waits_for_all_daily_triggers():

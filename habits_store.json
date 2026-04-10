@@ -27,7 +27,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dacd25dce64115dd6517dd",
@@ -58,7 +62,11 @@
       "exDates": [
         "20250610"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dacd5fdce64115dd651851",
@@ -87,7 +95,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dacd85dce64115dd6518dd",
@@ -126,7 +138,11 @@
         "20240916",
         "20240917"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dacd94dce64115dd651978",
@@ -155,7 +171,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dacdc8dce64115dd651a85",
@@ -186,7 +206,11 @@
       "exDates": [
         "20250124"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dacdd9dce64115dd651b28",
@@ -215,7 +239,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dace5cdce64115dd651e4f",
@@ -244,7 +272,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dacf3ddce64115dd6527ac",
@@ -275,7 +307,11 @@
       "exDates": [
         "20241121"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dacfbddce64115dd652a2c",
@@ -304,7 +340,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad00edce64115dd652fb4",
@@ -335,7 +375,11 @@
       "exDates": [
         "20240906"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad02fdce64115dd653260",
@@ -367,7 +411,11 @@
         "20241007",
         "20241015"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad05fdce64115dd65361e",
@@ -396,7 +444,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad0b6dce64115dd653bb6",
@@ -425,7 +477,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad0d3dce64115dd653fa9",
@@ -456,7 +512,11 @@
       "exDates": [
         "20250124"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad0f3dce64115dd6543b2",
@@ -485,7 +545,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad12adce64115dd6547ea",
@@ -514,7 +578,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad169dce64115dd654e01",
@@ -543,7 +611,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad189dce64115dd655277",
@@ -572,7 +644,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad1dadce64115dd655bb8",
@@ -601,7 +677,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad1fbdce64115dd656091",
@@ -630,7 +710,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad252dce64115dd656958",
@@ -659,7 +743,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad26ddce64115dd656e5a",
@@ -700,7 +788,11 @@
         "20240915",
         "20240916"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad2bfdce64115dd657364",
@@ -729,7 +821,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad2eedce64115dd65786f",
@@ -758,7 +854,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad2fddce64115dd657d68",
@@ -790,7 +890,11 @@
         "20240910",
         "20240911"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad31edce64115dd65827d",
@@ -819,7 +923,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad336dce64115dd65877e",
@@ -848,7 +956,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad3b8dce64115dd658e55",
@@ -879,7 +991,11 @@
       "exDates": [
         "20250124"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad3c4dce64115dd659359",
@@ -910,7 +1026,11 @@
       "exDates": [
         "20240911"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad3cfdce64115dd65987d",
@@ -946,7 +1066,11 @@
         "20240914",
         "20241002"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad3e3dce64115dd659dbf",
@@ -975,7 +1099,11 @@
       "targetStartDate": 20240906,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66dad44adce64115dd65aeed",
@@ -1006,7 +1134,11 @@
       "exDates": [
         "20250610"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66efd7f125908fb8f9096407",
@@ -1037,7 +1169,11 @@
       "exDates": [
         "20240924"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "66f6748aaa41e51e78ef428d",
@@ -1066,7 +1202,11 @@
       "exDates": [
         "20241002"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "6747378aaa41e50ba49bd931",
@@ -1093,7 +1233,11 @@
       "targetStartDate": 20241127,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "674738cfaa41e50ba49bdd4a",
@@ -1120,7 +1264,11 @@
       "targetStartDate": 20241127,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "677f565218712677ba499576",
@@ -1147,7 +1295,11 @@
       "targetStartDate": 20250109,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "6788d021f6db5e2e65bc848d",
@@ -1176,7 +1328,11 @@
       "exDates": [
         "20250124"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "679c6c8c5fcb7e10beb82dbd",
@@ -1203,7 +1359,11 @@
       "targetStartDate": 20250131,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "682eb9ea621286ace6d38972",
@@ -1230,7 +1390,11 @@
       "targetStartDate": 20250522,
       "completedCycles": 0,
       "exDates": null,
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "6831e9d96212174b0ba803f4",
@@ -1259,7 +1423,11 @@
       "exDates": [
         "20250610"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "6831ea0c6212174b0ba80411",
@@ -1288,7 +1456,11 @@
       "exDates": [
         "20250610"
       ],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "687604154586a65351ce0687",
@@ -1315,7 +1487,11 @@
       "targetStartDate": 20250715,
       "completedCycles": 0,
       "exDates": null,
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "69209770894fe5133865079f",
@@ -1342,7 +1518,11 @@
       "targetStartDate": 20251121,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "69209b7b894fe5133865450f",
@@ -1369,7 +1549,11 @@
       "targetStartDate": 20251121,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "6957b6b2aceb810c3449d05f",
@@ -1396,7 +1580,11 @@
       "targetStartDate": 20260102,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "69592304aceb8119e1ced0af",
@@ -1423,7 +1611,11 @@
       "targetStartDate": 20260103,
       "completedCycles": 0,
       "exDates": [],
-      "style": 1
+      "style": 1,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
     },
     {
       "id": "7048cbd2aceb8119e1cf1001",
@@ -1451,7 +1643,43 @@
       "completedCycles": 0,
       "exDates": [],
       "style": 1,
-      "dailyTriggerCount": 2
+      "dailyTriggerCount": 2,
+      "dueOutputs": {
+        "writeToMd": true,
+        "desktopNotification": false
+      }
+    },
+    {
+      "id": "reply-to-unread-msg",
+      "name": "reply to unread msg",
+      "iconRes": "habit_daily_check_in",
+      "color": "#97E38B",
+      "sortOrder": 1000000000,
+      "status": 0,
+      "encouragement": "",
+      "totalCheckIns": 0,
+      "createdTime": "2026-04-10T00:00:00.000+0000",
+      "modifiedTime": "2026-04-10T00:00:00.000+0000",
+      "archivedTime": null,
+      "type": "Boolean",
+      "goal": 1.0,
+      "step": 0.0,
+      "unit": "Count",
+      "etag": "local-reply-unread-msg",
+      "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
+      "reminders": [],
+      "recordEnable": false,
+      "sectionId": "-1",
+      "targetDays": 0,
+      "targetStartDate": 20260410,
+      "completedCycles": 0,
+      "exDates": [],
+      "style": 1,
+      "dailyTriggerCount": 3,
+      "dueOutputs": {
+        "writeToMd": false,
+        "desktopNotification": true
+      }
     }
   ],
   "checkins": {
@@ -8729,6 +8957,18 @@
         "checkinTime": "2026-04-10T04:54:31.000+0000",
         "opTime": "2026-04-10T04:54:31.000+0000",
         "id": "7048cbd2aceb8119e1cf1001-20260410"
+      }
+    ],
+    "reply-to-unread-msg": [
+      {
+        "habitId": "reply-to-unread-msg",
+        "checkinStamp": 20260410,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-04-10T04:44:08.000+0000",
+        "opTime": "2026-04-10T04:44:08.000+0000",
+        "id": "reply-to-unread-msg-20260410"
       }
     ]
   }

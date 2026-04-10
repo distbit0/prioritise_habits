@@ -3,6 +3,7 @@ import json
 import pathlib
 import random
 import re
+import subprocess
 import sys
 from datetime import datetime, time, timedelta, timezone
 
@@ -11,10 +12,16 @@ from loguru import logger
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parent.parent
 CONFIG_FILE = PROJECT_ROOT / "config.json"
 LAST_RUN_FILE = PROJECT_ROOT / ".last_run"
-NOTES_TRIGGER_SCHEDULE_FILE = PROJECT_ROOT / ".notes_habit_trigger_schedule"
+HABIT_TRIGGER_SCHEDULE_FILE = PROJECT_ROOT / ".habit_trigger_schedule"
 NOTES_FILE = pathlib.Path("/home/pimania/notes/temp index.md")
-NOTES_TRIGGER_START = time(6, 0)
-NOTES_TRIGGER_END = time(12, 0)
+TRIGGER_START = time(6, 0)
+TRIGGER_END = time(12, 0)
+DUE_OUTPUT_WRITE_TO_MD = "writeToMd"
+DUE_OUTPUT_DESKTOP_NOTIFICATION = "desktopNotification"
+DEFAULT_DUE_OUTPUTS = {
+    DUE_OUTPUT_WRITE_TO_MD: True,
+    DUE_OUTPUT_DESKTOP_NOTIFICATION: False,
+}
 
 # Log to stdout + file with rotation
 logger.remove()
@@ -71,6 +78,7 @@ def load_habit_store(store_path):
             raise ValueError("Each habit must include an 'id'")
         if "name" not in habit:
             raise ValueError("Each habit must include a 'name'")
+        get_habit_due_outputs(habit)
 
     for habit_id, habit_checkins in checkins.items():
         if not isinstance(habit_checkins, list):
@@ -366,14 +374,45 @@ def get_habit_daily_trigger_count(habit):
     return trigger_count
 
 
-def sample_notes_trigger_time(trigger_date, local_timezone):
-    trigger_start = datetime.combine(trigger_date, NOTES_TRIGGER_START, local_timezone)
-    trigger_end = datetime.combine(trigger_date, NOTES_TRIGGER_END, local_timezone)
+def get_habit_due_outputs(habit):
+    habit_due_outputs = habit.get("dueOutputs", DEFAULT_DUE_OUTPUTS)
+    if not isinstance(habit_due_outputs, dict):
+        raise ValueError(f"Habit '{habit.get('name')}' dueOutputs must be an object")
+
+    unknown_outputs = set(habit_due_outputs).difference(DEFAULT_DUE_OUTPUTS)
+    if unknown_outputs:
+        raise ValueError(
+            f"Habit '{habit.get('name')}' has unknown dueOutputs: "
+            f"{sorted(unknown_outputs)}"
+        )
+
+    outputs = {}
+    for output_name, default_enabled in DEFAULT_DUE_OUTPUTS.items():
+        enabled = habit_due_outputs.get(output_name, default_enabled)
+        if not isinstance(enabled, bool):
+            raise ValueError(
+                f"Habit '{habit.get('name')}' dueOutputs.{output_name} must be a boolean"
+            )
+        outputs[output_name] = enabled
+    return outputs
+
+
+def get_ready_triggers_for_due_output(ready_triggers, output_name):
+    return [
+        item
+        for item in ready_triggers
+        if get_habit_due_outputs(item["habit"])[output_name]
+    ]
+
+
+def sample_habit_trigger_time(trigger_date, local_timezone):
+    trigger_start = datetime.combine(trigger_date, TRIGGER_START, local_timezone)
+    trigger_end = datetime.combine(trigger_date, TRIGGER_END, local_timezone)
     trigger_seconds = int((trigger_end - trigger_start).total_seconds())
     return trigger_start + timedelta(seconds=random.randint(0, trigger_seconds))
 
 
-def load_notes_trigger_schedule(schedule_path, schedule_date):
+def load_habit_trigger_schedule(schedule_path, schedule_date):
     if not schedule_path.exists():
         return {"date": schedule_date, "triggers": {}}
 
@@ -383,18 +422,18 @@ def load_notes_trigger_schedule(schedule_path, schedule_date):
     if schedule.get("date") != schedule_date:
         return {"date": schedule_date, "triggers": {}}
     if not isinstance(schedule.get("triggers"), dict):
-        raise ValueError("Notes trigger schedule field 'triggers' must be an object")
+        raise ValueError("Habit trigger schedule field 'triggers' must be an object")
     return schedule
 
 
-def save_notes_trigger_schedule(schedule_path, schedule):
+def save_habit_trigger_schedule(schedule_path, schedule):
     with open(schedule_path, "w") as schedule_file:
         json.dump(schedule, schedule_file, indent=2)
 
 
 def get_ready_habit_triggers(due_habits, schedule_path, now):
     schedule_date = now.strftime("%Y%m%d")
-    schedule = load_notes_trigger_schedule(schedule_path, schedule_date)
+    schedule = load_habit_trigger_schedule(schedule_path, schedule_date)
     scheduled_triggers = schedule["triggers"]
     due_habits_by_id = {str(habit["id"]): habit for habit in due_habits}
 
@@ -403,7 +442,7 @@ def get_ready_habit_triggers(due_habits, schedule_path, now):
         while len(habit_triggers) < get_habit_daily_trigger_count(habit):
             habit_triggers.append(
                 {
-                    "time": sample_notes_trigger_time(
+                    "time": sample_habit_trigger_time(
                         now.date(), now.tzinfo
                     ).isoformat(),
                     "triggered": False,
@@ -554,6 +593,30 @@ def append_ready_habit_triggers(notes_path, ready_triggers):
     return len(new_habit_lines)
 
 
+def create_persistent_desktop_notifications(ready_triggers):
+    notification_count = 0
+    for item in ready_triggers:
+        habit_name = remove_existing_prefix(item["habit"].get("name", "")).strip()
+        if not habit_name:
+            continue
+        subprocess.run(
+            [
+                "notify-send",
+                "--app-name=prioritise_habits",
+                "--urgency=critical",
+                "--expire-time=0",
+                "Habit due",
+                habit_name,
+            ],
+            check=True,
+        )
+        notification_count += 1
+
+    if notification_count:
+        logger.info(f"Created {notification_count} persistent desktop notifications")
+    return notification_count
+
+
 def get_completed_habits_after_ready_triggers(ready_triggers, schedule):
     for item in ready_triggers:
         item["trigger"]["triggered"] = True
@@ -593,19 +656,28 @@ def main(test_mode=None):
             logger.info(f"Found {len(due_habits_today)} long-term habits due today.")
 
             now = datetime.now().astimezone()
-            ready_triggers, notes_trigger_schedule = get_ready_habit_triggers(
-                due_habits_today, NOTES_TRIGGER_SCHEDULE_FILE, now
+            ready_triggers, habit_trigger_schedule = get_ready_habit_triggers(
+                due_habits_today, HABIT_TRIGGER_SCHEDULE_FILE, now
+            )
+            notes_ready_triggers = get_ready_triggers_for_due_output(
+                ready_triggers, DUE_OUTPUT_WRITE_TO_MD
+            )
+            notification_ready_triggers = get_ready_triggers_for_due_output(
+                ready_triggers, DUE_OUTPUT_DESKTOP_NOTIFICATION
             )
             appended_trigger_count = append_ready_habit_triggers(
-                NOTES_FILE, ready_triggers
+                NOTES_FILE, notes_ready_triggers
+            )
+            notification_count = create_persistent_desktop_notifications(
+                notification_ready_triggers
             )
             completed_habits, checkin_times_by_habit_id = (
                 get_completed_habits_after_ready_triggers(
-                    ready_triggers, notes_trigger_schedule
+                    ready_triggers, habit_trigger_schedule
                 )
             )
-            save_notes_trigger_schedule(
-                NOTES_TRIGGER_SCHEDULE_FILE, notes_trigger_schedule
+            save_habit_trigger_schedule(
+                HABIT_TRIGGER_SCHEDULE_FILE, habit_trigger_schedule
             )
 
             today = now.date()
@@ -620,6 +692,7 @@ def main(test_mode=None):
             applied_checkins = apply_checkin_payload(checkins, payload)
             logger.info(
                 f"Appended {appended_trigger_count} ready habit triggers, "
+                f"created {notification_count} desktop notifications, "
                 f"marked {len(checkins_to_apply)} habits as completed, "
                 f"and applied {applied_checkins} checkins."
             )

@@ -91,6 +91,7 @@ profile_default/
 output/
 data/
 **/node_modules/
+.habit_trigger_schedule
 .notes_habit_trigger_schedule
 .last_notes_append
 .pending_notes_habits
