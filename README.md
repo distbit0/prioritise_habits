@@ -4,7 +4,7 @@ This script prioritizes your due habits from a local JSON file. It does not call
 
 ## What it does
 
-- Reads active habits and check-in history from a local JSON store.
+- Reads active habits, archived habits, and check-in history from local JSON files.
 - Finds habits due today from each habit's `repeatRule`.
 - Calculates completion rate over `lookBackDays`.
 - Reorders due habits so lower completion rates are prioritized first.
@@ -20,35 +20,57 @@ Edit [`config.json`](config.json):
 ```json
 {
   "lookBackDays": 21,
-  "habitsStoreFile": "./habits_store.json"
+  "habitsStoreFile": "./habits_store.json",
+  "activeHabitsFile": "./active_habits.json"
 }
 ```
 
 - `lookBackDays`: number of days used when calculating completion rate.
-- `habitsStoreFile`: path to your local habit store JSON file.
+- `habitsStoreFile`: path to the archived habit and check-in store.
+- `activeHabitsFile`: path to the editable non-archived habits file.
 
 Relative paths are resolved from the repo root.
 
+## Active Habit Format
+
+Active/non-archived habits live in [`active_habits.json`](active_habits.json). The
+file is a JSON list, and each object keeps the full habit record so edits do not
+discard TickTick-derived metadata:
+
+```json
+[
+  {
+    "id": "habit-1",
+    "name": "Read",
+    "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
+    "reminders": ["06:00"],
+    "targetStartDate": "2025-01-01",
+    "goal": 1,
+    "dailyTriggerCount": 1,
+    "dueOutputs": {
+      "writeToMd": true,
+      "desktopNotification": false
+    },
+    "archivedTime": null,
+    "sortOrder": 1
+  }
+]
+```
+
+The most commonly edited fields are ordered near the top. Unknown fields are
+preserved when the app saves the file.
+
 ## Habit Store Format
 
-The habit store must be a JSON object with this structure:
+Archived habits and completion history live in [`habits_store.json`](habits_store.json):
 
 ```json
 {
   "habits": [
     {
-      "id": "habit-1",
-      "name": "Read",
-      "goal": 1,
-      "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
-      "dailyTriggerCount": 1,
-      "dueOutputs": {
-        "writeToMd": true,
-        "desktopNotification": false
-      },
-      "targetStartDate": "2025-01-01",
-      "archivedTime": null,
-      "sortOrder": 1
+      "id": "habit-2",
+      "name": "Archived habit",
+      "archivedTime": "2025-01-01T00:00:00.000+0000"
     }
   ],
   "checkins": {
@@ -69,14 +91,14 @@ The habit store must be a JSON object with this structure:
 ```
 
 Notes:
-- `habits` must be a list of habit objects with at least `id` and `name`.
+- `active_habits.json` must contain only habits where `archivedTime` is missing or null.
+- `habits_store.json` `habits` must contain only archived habits.
+- Every habit object must include at least `id` and `name`.
 - `checkins` must be an object keyed by habit id.
 - Habits with `archivedTime` are treated as inactive.
 - `dailyTriggerCount` is optional and defaults to `1`. Use `2` for a habit that should trigger twice on each due day.
 - `dueOutputs` is optional and defaults to writing to `~/notes/temp index.md` only.
 - Set `writeToMd` and `desktopNotification` independently; a habit can use either, both, or neither.
-
-A starter store is included at [`habits_store.json`](habits_store.json).
 
 ## Trigger Scheduling
 

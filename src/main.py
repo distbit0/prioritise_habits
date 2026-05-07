@@ -22,6 +22,35 @@ DEFAULT_DUE_OUTPUTS = {
     DUE_OUTPUT_WRITE_TO_MD: True,
     DUE_OUTPUT_DESKTOP_NOTIFICATION: False,
 }
+ACTIVE_HABIT_FIELD_ORDER = (
+    "id",
+    "name",
+    "repeatRule",
+    "reminders",
+    "targetStartDate",
+    "goal",
+    "step",
+    "unit",
+    "dailyTriggerCount",
+    "dueOutputs",
+    "sortOrder",
+    "status",
+    "archivedTime",
+    "iconRes",
+    "color",
+    "encouragement",
+    "totalCheckIns",
+    "createdTime",
+    "modifiedTime",
+    "type",
+    "etag",
+    "recordEnable",
+    "sectionId",
+    "targetDays",
+    "completedCycles",
+    "exDates",
+    "style",
+)
 
 # Log to stdout + file with rotation
 logger.remove()
@@ -47,17 +76,72 @@ def load_config():
         raise KeyError("Missing required config key: lookBackDays")
     if "habitsStoreFile" not in config:
         raise KeyError("Missing required config key: habitsStoreFile")
+    if "activeHabitsFile" not in config:
+        raise KeyError("Missing required config key: activeHabitsFile")
     return config
 
 
-def get_habit_store_path(config):
-    store_path = pathlib.Path(config["habitsStoreFile"]).expanduser()
-    if not store_path.is_absolute():
-        store_path = (PROJECT_ROOT / store_path).resolve()
-    return store_path
+def get_config_path(config, config_key):
+    config_path = pathlib.Path(config[config_key]).expanduser()
+    if not config_path.is_absolute():
+        config_path = (PROJECT_ROOT / config_path).resolve()
+    return config_path
 
 
-def load_habit_store(store_path):
+def load_json_list(json_path, description):
+    with open(json_path, "r") as json_file:
+        payload = json.load(json_file)
+
+    if not isinstance(payload, list):
+        raise ValueError(f"{description} must be a JSON list")
+    return payload
+
+
+def is_archived_habit(habit):
+    return bool(habit.get("archivedTime"))
+
+
+def validate_habits(habits, description):
+    for habit in habits:
+        if not isinstance(habit, dict):
+            raise ValueError(f"Each {description} habit must be a JSON object")
+        if "id" not in habit:
+            raise ValueError(f"Each {description} habit must include an 'id'")
+        if "name" not in habit:
+            raise ValueError(f"Each {description} habit must include a 'name'")
+        get_habit_due_outputs(habit)
+
+
+def validate_unique_habit_ids(habits):
+    seen_habit_ids = set()
+    duplicate_habit_ids = set()
+    for habit in habits:
+        habit_id = str(habit["id"])
+        if habit_id in seen_habit_ids:
+            duplicate_habit_ids.add(habit_id)
+        seen_habit_ids.add(habit_id)
+
+    if duplicate_habit_ids:
+        raise ValueError(f"Duplicate habit ids found: {sorted(duplicate_habit_ids)}")
+
+
+def order_habit_fields(habit):
+    ordered_habit = {
+        field_name: habit[field_name]
+        for field_name in ACTIVE_HABIT_FIELD_ORDER
+        if field_name in habit
+    }
+    ordered_habit.update(
+        {
+            field_name: field_value
+            for field_name, field_value in habit.items()
+            if field_name not in ordered_habit
+        }
+    )
+    return ordered_habit
+
+
+def load_habit_store(store_path, active_habits_path):
     with open(store_path, "r") as store_file:
         store = json.load(store_file)
 
@@ -71,27 +155,55 @@ def load_habit_store(store_path):
     if not isinstance(checkins, dict):
         raise ValueError("Habit store field 'checkins' must be an object")
 
-    for habit in habits:
-        if not isinstance(habit, dict):
-            raise ValueError("Each habit must be a JSON object")
-        if "id" not in habit:
-            raise ValueError("Each habit must include an 'id'")
-        if "name" not in habit:
-            raise ValueError("Each habit must include a 'name'")
-        get_habit_due_outputs(habit)
+    active_habits = load_json_list(active_habits_path, "Active habits file")
+    validate_habits(active_habits, "active")
+    validate_habits(habits, "archived")
+
+    archived_habits_in_active_file = [
+        habit["id"] for habit in active_habits if is_archived_habit(habit)
+    ]
+    active_habits_in_store = [
+        habit["id"] for habit in habits if not is_archived_habit(habit)
+    ]
+    if archived_habits_in_active_file:
+        raise ValueError(
+            "Active habits file contains archived habits: "
+            f"{sorted(archived_habits_in_active_file)}"
+        )
+    if active_habits_in_store:
+        raise ValueError(
+            "Habit store contains non-archived habits; move them to active habits file: "
+            f"{sorted(active_habits_in_store)}"
+        )
+
+    all_habits = active_habits + habits
+    validate_unique_habit_ids(all_habits)
 
     for habit_id, habit_checkins in checkins.items():
         if not isinstance(habit_checkins, list):
             raise ValueError(f"Checkins for habit '{habit_id}' must be a list")
 
-    return {"habits": habits, "checkins": checkins}
+    return {"habits": all_habits, "checkins": checkins}
 
 
-def save_habit_store(store_path, habits, checkins):
+def save_habit_store(store_path, active_habits_path, habits, checkins):
+    active_habits = [
+        order_habit_fields(habit) for habit in habits if not is_archived_habit(habit)
+    ]
+    archived_habits = [
+        order_habit_fields(habit) for habit in habits if is_archived_habit(habit)
+    ]
+
     store_path.parent.mkdir(parents=True, exist_ok=True)
+    active_habits_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(active_habits_path, "w") as active_habits_file:
+        json.dump(active_habits, active_habits_file, indent=2)
+        active_habits_file.write("\n")
     with open(store_path, "w") as store_file:
-        json.dump({"habits": habits, "checkins": checkins}, store_file, indent=2)
-    logger.info(f"Habit store saved to {store_path}")
+        json.dump({"habits": archived_habits, "checkins": checkins}, store_file, indent=2)
+        store_file.write("\n")
+    logger.info(f"Active habits saved to {active_habits_path}")
+    logger.info(f"Archived habit store saved to {store_path}")
 
 
 def parse_repeat_rule(rrule_str):
@@ -646,8 +758,9 @@ def main(test_mode=None):
 
     try:
         config = load_config()
-        store_path = get_habit_store_path(config)
-        store = load_habit_store(store_path)
+        store_path = get_config_path(config, "habitsStoreFile")
+        active_habits_path = get_config_path(config, "activeHabitsFile")
+        store = load_habit_store(store_path, active_habits_path)
         all_habits = store["habits"]
         checkins = store["checkins"]
         due_habits_today = get_habits_due_today(all_habits, checkins)
@@ -703,7 +816,7 @@ def main(test_mode=None):
             sorted_habits = update_habit_text(sorted_habits)
             sorted_habits = update_habit_sort_order(sorted_habits)
             all_habits = merge_habit_updates(all_habits, sorted_habits)
-            save_habit_store(store_path, all_habits, checkins)
+            save_habit_store(store_path, active_habits_path, all_habits, checkins)
 
             update_last_run()
             logger.info("Script execution completed and last run time updated.")

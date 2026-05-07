@@ -12,62 +12,105 @@ from src.main import (
     get_ready_triggers_for_due_output,
     load_habit_store,
     merge_habit_updates,
+    save_habit_store,
     sample_habit_trigger_time,
 )
 
 
-def write_store(tmp_path, payload):
+def write_store(tmp_path, store_payload, active_habits=None):
     store_path = tmp_path / "store.json"
-    store_path.write_text(json.dumps(payload))
-    return store_path
+    active_habits_path = tmp_path / "active_habits.json"
+    store_path.write_text(json.dumps(store_payload))
+    active_habits_path.write_text(json.dumps(active_habits or []))
+    return store_path, active_habits_path
 
 
 def test_load_habit_store_accepts_valid_schema(tmp_path):
-    store_path = write_store(
+    store_path, active_habits_path = write_store(
         tmp_path,
         {
-            "habits": [{"id": "habit-1", "name": "Read", "goal": 1}],
+            "habits": [{"id": "habit-2", "name": "Archived", "archivedTime": "now"}],
             "checkins": {"habit-1": []},
         },
+        [{"id": "habit-1", "name": "Read", "goal": 1}],
     )
 
-    store = load_habit_store(store_path)
+    store = load_habit_store(store_path, active_habits_path)
 
-    assert len(store["habits"]) == 1
+    assert len(store["habits"]) == 2
     assert store["habits"][0]["id"] == "habit-1"
+    assert store["habits"][1]["id"] == "habit-2"
     assert store["checkins"]["habit-1"] == []
 
 
 def test_load_habit_store_rejects_habit_without_id(tmp_path):
-    store_path = write_store(
+    store_path, active_habits_path = write_store(
         tmp_path,
         {
-            "habits": [{"name": "Read"}],
+            "habits": [],
             "checkins": {},
         },
+        [{"name": "Read"}],
     )
 
     with pytest.raises(ValueError, match="must include an 'id'"):
-        load_habit_store(store_path)
+        load_habit_store(store_path, active_habits_path)
 
 
 def test_load_habit_store_rejects_invalid_due_output(tmp_path):
-    store_path = write_store(
+    store_path, active_habits_path = write_store(
         tmp_path,
         {
-            "habits": [
-                {
-                    "id": "habit-1",
-                    "name": "Read",
-                    "dueOutputs": {"writeToMd": "yes"},
-                }
-            ],
+            "habits": [],
+            "checkins": {},
+        },
+        [
+            {
+                "id": "habit-1",
+                "name": "Read",
+                "dueOutputs": {"writeToMd": "yes"},
+            }
+        ],
+    )
+
+    with pytest.raises(ValueError, match="dueOutputs.writeToMd must be a boolean"):
+        load_habit_store(store_path, active_habits_path)
+
+
+def test_load_habit_store_rejects_non_archived_habits_in_store(tmp_path):
+    store_path, active_habits_path = write_store(
+        tmp_path,
+        {
+            "habits": [{"id": "habit-1", "name": "Read", "archivedTime": None}],
             "checkins": {},
         },
     )
 
-    with pytest.raises(ValueError, match="dueOutputs.writeToMd must be a boolean"):
-        load_habit_store(store_path)
+    with pytest.raises(ValueError, match="move them to active habits file"):
+        load_habit_store(store_path, active_habits_path)
+
+
+def test_save_habit_store_splits_active_and_archived_habits(tmp_path):
+    store_path = tmp_path / "store.json"
+    active_habits_path = tmp_path / "active_habits.json"
+
+    save_habit_store(
+        store_path,
+        active_habits_path,
+        [
+            {"id": "habit-1", "name": "Read", "archivedTime": None, "goal": 1},
+            {"id": "habit-2", "name": "Archived", "archivedTime": "now"},
+        ],
+        {"habit-1": []},
+    )
+
+    active_habits = json.loads(active_habits_path.read_text())
+    store = json.loads(store_path.read_text())
+
+    assert [habit["id"] for habit in active_habits] == ["habit-1"]
+    assert list(active_habits[0])[:4] == ["id", "name", "goal", "archivedTime"]
+    assert [habit["id"] for habit in store["habits"]] == ["habit-2"]
+    assert store["checkins"] == {"habit-1": []}
 
 
 def test_habit_due_outputs_default_to_md_only():

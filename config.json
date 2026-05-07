@@ -1,4 +1,5 @@
 {
   "lookBackDays": 21,
-  "habitsStoreFile": "./habits_store.json"
+  "habitsStoreFile": "./habits_store.json",
+  "activeHabitsFile": "./active_habits.json"
 }
