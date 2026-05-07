@@ -68,41 +68,8 @@
     "style": 1
   },
   {
-    "id": "66dad0b6dce64115dd653bb6",
-    "name": "1. 2x [[misc index]] todos",
-    "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
-    "reminders": [
-      "06:00"
-    ],
-    "targetStartDate": 20240906,
-    "goal": 1.0,
-    "step": 0.0,
-    "unit": "Count",
-    "dueOutputs": {
-      "writeToMd": true,
-      "desktopNotification": false
-    },
-    "sortOrder": 1,
-    "status": 0,
-    "archivedTime": null,
-    "iconRes": "habit_daily_check_in",
-    "color": "#97E38B",
-    "encouragement": "",
-    "totalCheckIns": 38,
-    "createdTime": "2024-09-06T09:51:50.000+0000",
-    "modifiedTime": "2026-02-24T12:23:54.000+0000",
-    "type": "Boolean",
-    "etag": "zl8rp3gy",
-    "recordEnable": false,
-    "sectionId": "-1",
-    "targetDays": 0,
-    "completedCycles": 0,
-    "exDates": [],
-    "style": 1
-  },
-  {
     "id": "66dad169dce64115dd654e01",
-    "name": "1. fleshout & pub 1 note w/ codex [[infofi index]]",
+    "name": "1. fleshout & pub 1 note w/ codex [[infofi index]] [[writing index]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=3",
     "reminders": [
       "06:00"
@@ -131,105 +98,6 @@
     "targetDays": 0,
     "completedCycles": 0,
     "exDates": [],
-    "style": 1
-  },
-  {
-    "id": "66dad3b8dce64115dd658e55",
-    "name": "3. dl 40 ebooks w/ codex prompt",
-    "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=30",
-    "reminders": [
-      "06:00"
-    ],
-    "targetStartDate": 20240906,
-    "goal": 1.0,
-    "step": 0.0,
-    "unit": "Count",
-    "dueOutputs": {
-      "writeToMd": true,
-      "desktopNotification": false
-    },
-    "sortOrder": 3,
-    "status": 0,
-    "archivedTime": null,
-    "iconRes": "habit_daily_check_in",
-    "color": "#97E38B",
-    "encouragement": "",
-    "totalCheckIns": 6,
-    "createdTime": "2024-09-06T10:04:40.000+0000",
-    "modifiedTime": "2026-02-24T12:23:54.000+0000",
-    "type": "Boolean",
-    "etag": "yd8ioyo7",
-    "recordEnable": false,
-    "sectionId": "-1",
-    "targetDays": 0,
-    "completedCycles": 0,
-    "exDates": [
-      "20250124"
-    ],
-    "style": 1
-  },
-  {
-    "id": "6747378aaa41e50ba49bd931",
-    "name": "1. 45m out-facing prjct",
-    "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
-    "reminders": [],
-    "targetStartDate": 20241127,
-    "goal": 1.0,
-    "step": 0.0,
-    "unit": "Count",
-    "dueOutputs": {
-      "writeToMd": true,
-      "desktopNotification": false
-    },
-    "sortOrder": 1,
-    "status": 0,
-    "archivedTime": null,
-    "iconRes": "habit_daily_check_in",
-    "color": "#97E38B",
-    "encouragement": "",
-    "totalCheckIns": 27,
-    "createdTime": "2024-11-27T15:15:22.000+0000",
-    "modifiedTime": "2026-02-24T12:23:54.000+0000",
-    "type": "Boolean",
-    "etag": "7qwyn720",
-    "recordEnable": false,
-    "sectionId": "-1",
-    "targetDays": 0,
-    "completedCycles": 0,
-    "exDates": [],
-    "style": 1
-  },
-  {
-    "id": "6831e9d96212174b0ba803f4",
-    "name": "1. Tweet infofi prob+soltn [[writing index]]",
-    "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
-    "reminders": [],
-    "targetStartDate": 20250524,
-    "goal": 1.0,
-    "step": 0.0,
-    "unit": "Count",
-    "dueOutputs": {
-      "writeToMd": true,
-      "desktopNotification": false
-    },
-    "sortOrder": 1,
-    "status": 0,
-    "archivedTime": null,
-    "iconRes": "habit_daily_check_in",
-    "color": "#97E38B",
-    "encouragement": "",
-    "totalCheckIns": 33,
-    "createdTime": "2025-05-24T15:46:33.376+0000",
-    "modifiedTime": "2026-02-24T12:23:54.000+0000",
-    "type": "Boolean",
-    "etag": "snigyoys",
-    "recordEnable": false,
-    "sectionId": "-1",
-    "targetDays": 0,
-    "completedCycles": 0,
-    "exDates": [
-      "20250610"
-    ],
     "style": 1
   },
   {
