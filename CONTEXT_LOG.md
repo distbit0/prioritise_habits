@@ -15,4 +15,5 @@
 ## Notes filename slug migration
 
 - The notes vault now uses hyphen-slug filenames while keeping readable wikilinks. Direct append targets must use the slugged path, e.g. `~/notes/temp-index.md`.
+- Markdown output targets now reject filenames with whitespace before writing, so stale config cannot recreate old spaced note files.
 - The daily trigger schedule is shared across output channels and stored in `.habit_trigger_schedule`; completion/check-in is still based on all daily triggers firing, not on a specific output channel.

@@ -52,6 +52,18 @@ ACTIVE_HABIT_FIELD_ORDER = (
     "style",
 )
 
+
+def ensure_terminal_safe_markdown_path(path):
+    path = pathlib.Path(path)
+    has_whitespace = any(character.isspace() for character in path.name)
+    if path.suffix.lower() == ".md" and has_whitespace:
+        collapsed_stem = "-".join(path.stem.split())
+        safe_path = path.with_name(f"{collapsed_stem}{path.suffix.lower()}")
+        raise ValueError(
+            f"Markdown note path contains whitespace: {path}. Use {safe_path} instead."
+        )
+
+
 # Log to stdout + file with rotation
 logger.remove()
 logger.add(sys.stdout, level="INFO")
@@ -678,6 +690,7 @@ def append_ready_habit_triggers(notes_path, ready_triggers):
     if not ready_triggers:
         return 0
 
+    ensure_terminal_safe_markdown_path(notes_path)
     notes_path.parent.mkdir(parents=True, exist_ok=True)
 
     existing_lines = []
