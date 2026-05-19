@@ -97,7 +97,7 @@ Notes:
 - `checkins` must be an object keyed by habit id.
 - Habits with `archivedTime` are treated as inactive.
 - `dailyTriggerCount` is optional and defaults to `1`. Use `2` for a habit that should trigger twice on each due day.
-- `dueOutputs` is optional and defaults to writing to `~/notes/temp index.md` only.
+- `dueOutputs` is optional and defaults to writing to `~/notes/temp-index.md` only.
 - Set `writeToMd` and `desktopNotification` independently; a habit can use either, both, or neither.
 
 ## Trigger Scheduling
