@@ -63,7 +63,7 @@
   },
   {
     "id": "66dad169dce64115dd654e01",
-    "name": "fleshout & pub 1 note w/ codex [[writing index]] [[infofi index]]",
+    "name": "fleshout & pub 1 note w/ codex [[writing-index]] [[infofi-index]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=3",
     "reminders": ["06:00"],
     "targetStartDate": 20240906,
@@ -94,7 +94,7 @@
   },
   {
     "id": "69592304aceb8119e1ced0af",
-    "name": "1. reach out to someone in [[people to call]]",
+    "name": "1. reach out to someone in [[people-to-call]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
     "reminders": [],
     "targetStartDate": 20260103,
@@ -157,7 +157,7 @@
   },
   {
     "id": "reply-to-unread-msg",
-    "name": "1. reply to unread msg",
+    "name": "2. reply to unread msg",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260410,
@@ -169,7 +169,7 @@
       "writeToMd": false,
       "desktopNotification": true
     },
-    "sortOrder": 1,
+    "sortOrder": 2,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",

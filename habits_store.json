@@ -3557,6 +3557,16 @@
         "checkinTime": "2026-05-19T02:40:51.000+0000",
         "opTime": "2026-05-19T02:40:51.000+0000",
         "id": "69592304aceb8119e1ced0af-20260519"
+      },
+      {
+        "habitId": "69592304aceb8119e1ced0af",
+        "checkinStamp": 20260521,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-05-21T01:53:13.000+0000",
+        "opTime": "2026-05-21T01:53:13.000+0000",
+        "id": "69592304aceb8119e1ced0af-20260521"
       }
     ],
     "679c6c8c5fcb7e10beb82dbd": [],
@@ -9809,6 +9819,26 @@
         "checkinTime": "2026-05-19T00:06:23.000+0000",
         "opTime": "2026-05-19T00:06:23.000+0000",
         "id": "7048cbd2aceb8119e1cf1001-20260519"
+      },
+      {
+        "habitId": "7048cbd2aceb8119e1cf1001",
+        "checkinStamp": 20260520,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-05-20T02:54:23.000+0000",
+        "opTime": "2026-05-20T02:54:23.000+0000",
+        "id": "7048cbd2aceb8119e1cf1001-20260520"
+      },
+      {
+        "habitId": "7048cbd2aceb8119e1cf1001",
+        "checkinStamp": 20260521,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-05-21T01:35:12.000+0000",
+        "opTime": "2026-05-21T01:35:12.000+0000",
+        "id": "7048cbd2aceb8119e1cf1001-20260521"
       }
     ],
     "reply-to-unread-msg": [
@@ -10211,6 +10241,26 @@
         "checkinTime": "2026-05-19T04:27:22.000+0000",
         "opTime": "2026-05-19T04:27:22.000+0000",
         "id": "reply-to-unread-msg-20260519"
+      },
+      {
+        "habitId": "reply-to-unread-msg",
+        "checkinStamp": 20260520,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-05-20T04:25:00.000+0000",
+        "opTime": "2026-05-20T04:25:00.000+0000",
+        "id": "reply-to-unread-msg-20260520"
+      },
+      {
+        "habitId": "reply-to-unread-msg",
+        "checkinStamp": 20260521,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-05-21T02:32:00.000+0000",
+        "opTime": "2026-05-21T02:32:00.000+0000",
+        "id": "reply-to-unread-msg-20260521"
       }
     ]
   }
