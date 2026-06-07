@@ -189,7 +189,7 @@
   },
   {
     "id": "journal-emotions-daily",
-    "name": "1. do journalling to understand how i feel so i can be detached and better understand my emotions",
+    "name": "1. journal to understand my feelings and detach from emotions",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260607,
