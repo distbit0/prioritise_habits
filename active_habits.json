@@ -301,8 +301,8 @@
     "style": 1
   },
   {
-    "id": "dating-talk-without-number",
-    "name": "talk to one person without trying for a number",
+    "id": "dating-approach-now",
+    "name": "if you want to talk to her, go do it",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260612,
@@ -325,7 +325,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-talk-without-number",
+    "etag": "local-dating-approach-now",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -334,8 +334,8 @@
     "style": 1
   },
   {
-    "id": "dating-plan-next-meetup",
-    "name": "plan the next date or meetup instead of drifting",
+    "id": "dating-bold-action-before-ready",
+    "name": "take one bold social action before you feel ready",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260612,
@@ -358,7 +358,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-plan-next-meetup",
+    "etag": "local-dating-bold-action-before-ready",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -367,8 +367,8 @@
     "style": 1
   },
   {
-    "id": "dating-stay-before-self-rejecting",
-    "name": "stay in the interaction longer before self-rejecting",
+    "id": "dating-lead-logistics",
+    "name": "lead the logistics and propose a concrete plan",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260613,
@@ -391,7 +391,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-stay-before-self-rejecting",
+    "etag": "local-dating-lead-logistics",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -400,8 +400,8 @@
     "style": 1
   },
   {
-    "id": "dating-slow-speech-downward-tone",
-    "name": "speak slowly, pause, and end sentences downward",
+    "id": "dating-stay-before-self-rejecting",
+    "name": "stay in the interaction longer before self-rejecting",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260613,
@@ -424,7 +424,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-slow-speech-downward-tone",
+    "etag": "local-dating-stay-before-self-rejecting",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -433,8 +433,8 @@
     "style": 1
   },
   {
-    "id": "dating-open-posture-eye-contact",
-    "name": "open your posture and hold steady eye contact",
+    "id": "dating-show-intent-calmly",
+    "name": "show intent calmly without chasing her reaction",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260614,
@@ -457,7 +457,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-open-posture-eye-contact",
+    "etag": "local-dating-show-intent-calmly",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -466,8 +466,8 @@
     "style": 1
   },
   {
-    "id": "dating-open-follow-up",
-    "name": "ask one open follow-up about what they said",
+    "id": "dating-eye-contact-voice-compliment",
+    "name": "open with eye contact, low voice, and a real compliment",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260614,
@@ -490,7 +490,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-open-follow-up",
+    "etag": "local-dating-eye-contact-voice-compliment",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -499,8 +499,8 @@
     "style": 1
   },
   {
-    "id": "dating-reflect-emotion-first",
-    "name": "reflect the emotion before giving advice",
+    "id": "dating-slow-downward-speech",
+    "name": "speak slowly, pause, and finish sentences downward",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260615,
@@ -523,7 +523,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-reflect-emotion-first",
+    "etag": "local-dating-slow-downward-speech",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -532,8 +532,8 @@
     "style": 1
   },
   {
-    "id": "dating-specific-genuine-compliment",
-    "name": "make one specific genuine compliment",
+    "id": "dating-open-chest-still-body",
+    "name": "open your chest and slow your body movements",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260615,
@@ -556,7 +556,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-specific-genuine-compliment",
+    "etag": "local-dating-open-chest-still-body",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -565,8 +565,8 @@
     "style": 1
   },
   {
-    "id": "dating-answer-short-story",
-    "name": "turn one answer into a short concrete story",
+    "id": "dating-match-energy-no-compensating",
+    "name": "match her energy instead of compensating for disinterest",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260616,
@@ -589,7 +589,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-answer-short-story",
+    "etag": "local-dating-match-energy-no-compensating",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -598,8 +598,8 @@
     "style": 1
   },
   {
-    "id": "dating-playful-without-chasing",
-    "name": "be playful without chasing the reaction",
+    "id": "dating-tease-changeable-choice",
+    "name": "tease her lightly about a choice she can change",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260616,
@@ -622,7 +622,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-playful-without-chasing",
+    "etag": "local-dating-tease-changeable-choice",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -631,8 +631,8 @@
     "style": 1
   },
   {
-    "id": "dating-match-energy",
-    "name": "match their energy instead of overcompensating",
+    "id": "dating-playful-disqualify",
+    "name": "playfully disqualify her instead of seeking approval",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260617,
@@ -655,7 +655,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-match-energy",
+    "etag": "local-dating-playful-disqualify",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -664,8 +664,8 @@
     "style": 1
   },
   {
-    "id": "dating-observe-the-room",
-    "name": "make one observational statement about the room",
+    "id": "dating-nonliteral-answer",
+    "name": "answer one routine question non-literally",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260617,
@@ -688,7 +688,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-observe-the-room",
+    "etag": "local-dating-nonliteral-answer",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -697,8 +697,8 @@
     "style": 1
   },
   {
-    "id": "dating-ask-feeling-cause",
-    "name": "ask what made them feel that way",
+    "id": "dating-extend-joke-premise",
+    "name": "extend a joke as if its premise is real",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260618,
@@ -721,7 +721,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-ask-feeling-cause",
+    "etag": "local-dating-extend-joke-premise",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -730,8 +730,8 @@
     "style": 1
   },
   {
-    "id": "dating-echo-curiously",
-    "name": "repeat back one phrase with curious intent",
+    "id": "dating-self-amuse-first",
+    "name": "make the joke for your own amusement first",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260618,
@@ -754,7 +754,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-echo-curiously",
+    "etag": "local-dating-self-amuse-first",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -763,8 +763,8 @@
     "style": 1
   },
   {
-    "id": "dating-reference-earlier-detail",
-    "name": "reference one thing they mentioned earlier",
+    "id": "dating-shift-to-romance",
+    "name": "move one thread toward dating, love, or romance",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260619,
@@ -787,7 +787,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-reference-earlier-detail",
+    "etag": "local-dating-shift-to-romance",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -796,8 +796,8 @@
     "style": 1
   },
   {
-    "id": "dating-pause-before-replying",
-    "name": "let a pause happen before responding",
+    "id": "dating-tag-along-invite",
+    "name": "use tag-along framing for one invite",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260619,
@@ -820,7 +820,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-pause-before-replying",
+    "etag": "local-dating-tag-along-invite",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -829,8 +829,8 @@
     "style": 1
   },
   {
-    "id": "dating-name-the-tension",
-    "name": "name the obvious tension in the conversation",
+    "id": "dating-proximity-if-mutual",
+    "name": "if the vibe is mutual, move closer instead of stalling",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260620,
@@ -853,7 +853,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-name-the-tension",
+    "etag": "local-dating-proximity-if-mutual",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -862,8 +862,8 @@
     "style": 1
   },
   {
-    "id": "dating-tease-light-choice",
-    "name": "tease lightly about a choice they made",
+    "id": "dating-take-away-after-escalation",
+    "name": "after raising intensity, take it away and relax",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260620,
@@ -886,7 +886,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-tease-light-choice",
+    "etag": "local-dating-take-away-after-escalation",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -895,8 +895,8 @@
     "style": 1
   },
   {
-    "id": "dating-nonliteral-answer",
-    "name": "answer one routine question non-literally",
+    "id": "dating-use-their-words",
+    "name": "use her exact words to ask a deeper question",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260621,
@@ -919,7 +919,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-nonliteral-answer",
+    "etag": "local-dating-use-their-words",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -928,8 +928,8 @@
     "style": 1
   },
   {
-    "id": "dating-extend-joke-premise",
-    "name": "extend a joke as if its premise is real",
+    "id": "dating-ask-how-that-felt",
+    "name": "ask how that made her feel",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260621,
@@ -952,7 +952,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-extend-joke-premise",
+    "etag": "local-dating-ask-how-that-felt",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -961,8 +961,8 @@
     "style": 1
   },
   {
-    "id": "dating-ask-opinion",
-    "name": "ask for their opinion or suggestion",
+    "id": "dating-reflect-emotion-not-advice",
+    "name": "reflect the emotion before giving advice",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260622,
@@ -985,7 +985,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-ask-opinion",
+    "etag": "local-dating-reflect-emotion-not-advice",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -994,8 +994,8 @@
     "style": 1
   },
   {
-    "id": "dating-disagree-honestly",
-    "name": "disagree honestly instead of automatically complying",
+    "id": "dating-reference-earlier-detail",
+    "name": "reference one detail she mentioned earlier",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260622,
@@ -1018,7 +1018,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-disagree-honestly",
+    "etag": "local-dating-reference-earlier-detail",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -1027,8 +1027,8 @@
     "style": 1
   },
   {
-    "id": "dating-say-no-cleanly",
-    "name": "say no without apologising when you mean no",
+    "id": "dating-cold-read",
+    "name": "make one playful cold read about her",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260623,
@@ -1051,7 +1051,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-say-no-cleanly",
+    "etag": "local-dating-cold-read",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -1060,8 +1060,8 @@
     "style": 1
   },
   {
-    "id": "dating-compliment-effort-style",
-    "name": "compliment effort or style, not their body",
+    "id": "dating-opinion-controversial",
+    "name": "ask for her opinion on something mildly controversial",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260623,
@@ -1084,7 +1084,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-compliment-effort-style",
+    "etag": "local-dating-opinion-controversial",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -1093,8 +1093,8 @@
     "style": 1
   },
   {
-    "id": "dating-talk-feelings",
-    "name": "say how you feel, not just what you think",
+    "id": "dating-disagree-cleanly",
+    "name": "disagree cleanly instead of entering her frame",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260624,
@@ -1117,7 +1117,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-talk-feelings",
+    "etag": "local-dating-disagree-cleanly",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -1126,8 +1126,8 @@
     "style": 1
   },
   {
-    "id": "dating-shift-facts-to-emotions",
-    "name": "shift one factual thread toward emotions",
+    "id": "dating-no-overexplaining",
+    "name": "state your decision once without over-explaining",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260624,
@@ -1150,7 +1150,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-shift-facts-to-emotions",
+    "etag": "local-dating-no-overexplaining",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -1159,8 +1159,8 @@
     "style": 1
   },
   {
-    "id": "dating-slow-open-movements",
-    "name": "keep your chest open and movements slow",
+    "id": "dating-say-no-without-apology",
+    "name": "say no without apologising when you mean no",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260625,
@@ -1183,7 +1183,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-slow-open-movements",
+    "etag": "local-dating-say-no-without-apology",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -1192,8 +1192,8 @@
     "style": 1
   },
   {
-    "id": "dating-walk-away-bad-fit",
-    "name": "walk away from interactions you do not enjoy",
+    "id": "dating-end-bad-fit",
+    "name": "end interactions you do not enjoy",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260625,
@@ -1216,7 +1216,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-walk-away-bad-fit",
+    "etag": "local-dating-end-bad-fit",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -1225,8 +1225,8 @@
     "style": 1
   },
   {
-    "id": "dating-bold-before-ready",
-    "name": "do one bold social action before you feel ready",
+    "id": "dating-be-busy",
+    "name": "act like your time is valuable and leave first",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260626,
@@ -1249,7 +1249,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-bold-before-ready",
+    "etag": "local-dating-be-busy",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
@@ -1258,8 +1258,8 @@
     "style": 1
   },
   {
-    "id": "dating-no-outcome-focus",
-    "name": "drop the outcome and stay chill and playful",
+    "id": "dating-shift-state",
+    "name": "shift the emotion, environment, topic, or intensity",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=15",
     "reminders": [],
     "targetStartDate": 20260626,
@@ -1282,7 +1282,7 @@
     "createdTime": "2026-06-12T00:00:00.000+0000",
     "modifiedTime": "2026-06-12T00:00:00.000+0000",
     "type": "Boolean",
-    "etag": "local-dating-no-outcome-focus",
+    "etag": "local-dating-shift-state",
     "recordEnable": false,
     "sectionId": "-1",
     "targetDays": 0,
