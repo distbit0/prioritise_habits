@@ -13,7 +13,7 @@
 - `dueOutputs` controls delivery channels independently from recurrence: `writeToMd` appends to `~/notes/temp-index.md`, while `desktopNotification` sends a persistent `notify-send` notification.
 - `textToSpeech` speaks habit prompts through cached ElevenLabs MP3s. It intentionally waits for a Bluetooth default audio sink before generating or playing audio, so prompts are not spoken through the laptop speakers.
 - The cron entry runs this repo every minute. A repo-local run lock is required because cached MP3 playback is sequential and can last longer than one minute.
-- Dating advice prompts are modeled as 45 separate TTS-enabled habits on a 15-day interval, with three habits sharing each target-start date offset. The prompt set intentionally emphasizes higher-leverage advice from the source note: approach, leadership, logistics, polarity, playfulness, emotional depth, and self-possession.
+- Dating advice prompts are modeled as 20 TTS-enabled habits on a 20-day interval, with exactly one dating habit target-starting per day and two advice items combined into each habit. The local due logic treats unchecked habits as overdue after `targetStartDate`, so the no-overlap cadence assumes the normal scheduled run records each delivered habit as checked.
 
 ## Notes filename slug migration
 
