@@ -218,5 +218,37 @@
     "completedCycles": 0,
     "exDates": [],
     "style": 1
+  },
+  {
+    "id": "post-tweet-from-tweet-ideas-accepted-daily",
+    "name": "1. post tweet from [[tweet-ideas-accepted]]",
+    "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
+    "reminders": [],
+    "targetStartDate": 20260611,
+    "goal": 1.0,
+    "step": 0.0,
+    "unit": "Count",
+    "dailyTriggerCount": 1,
+    "dueOutputs": {
+      "writeToMd": true,
+      "desktopNotification": false
+    },
+    "sortOrder": 1,
+    "status": 0,
+    "archivedTime": null,
+    "iconRes": "habit_daily_check_in",
+    "color": "#97E38B",
+    "encouragement": "",
+    "totalCheckIns": 0,
+    "createdTime": "2026-06-11T00:00:00.000+0000",
+    "modifiedTime": "2026-06-11T00:00:00.000+0000",
+    "type": "Boolean",
+    "etag": "local-post-tweet-from-tweet-ideas-accepted-daily",
+    "recordEnable": false,
+    "sectionId": "-1",
+    "targetDays": 0,
+    "completedCycles": 0,
+    "exDates": [],
+    "style": 1
   }
 ]
