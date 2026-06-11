@@ -133,7 +133,7 @@
   },
   {
     "id": "7048cbd2aceb8119e1cf1001",
-    "name": "2. alternate btwn MATERIAL progress on internal and external task. use multiple agent threads",
+    "name": "1. alternate btwn MATERIAL progress on internal and external task. use multiple agent threads",
     "repeatRule": "RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=SU,MO,TU,WE,TH,FR,SA",
     "reminders": [],
     "targetStartDate": 20260410,
@@ -145,7 +145,7 @@
       "writeToMd": true,
       "desktopNotification": true
     },
-    "sortOrder": 2,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
