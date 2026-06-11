@@ -1,10 +1,16 @@
 import argparse
+import fcntl
+import hashlib
 import json
+import os
 import pathlib
 import random
 import re
 import subprocess
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime, time, timedelta, timezone
 
 from loguru import logger
@@ -13,14 +19,25 @@ PROJECT_ROOT = pathlib.Path(__file__).resolve().parent.parent
 CONFIG_FILE = PROJECT_ROOT / "config.json"
 LAST_RUN_FILE = PROJECT_ROOT / ".last_run"
 HABIT_TRIGGER_SCHEDULE_FILE = PROJECT_ROOT / ".habit_trigger_schedule"
+RUN_LOCK_FILE = PROJECT_ROOT / ".habit_run.lock"
 NOTES_FILE = pathlib.Path("/home/pimania/notes/temp-index.md")
 TRIGGER_START = time(6, 0)
 TRIGGER_END = time(12, 0)
 DUE_OUTPUT_WRITE_TO_MD = "writeToMd"
 DUE_OUTPUT_DESKTOP_NOTIFICATION = "desktopNotification"
+DUE_OUTPUT_TEXT_TO_SPEECH = "textToSpeech"
+ELEVENLABS_API_KEY_ENV = "ELEVENLABS_API_KEY"
 DEFAULT_DUE_OUTPUTS = {
     DUE_OUTPUT_WRITE_TO_MD: True,
     DUE_OUTPUT_DESKTOP_NOTIFICATION: False,
+    DUE_OUTPUT_TEXT_TO_SPEECH: True,
+}
+DEFAULT_TEXT_TO_SPEECH_CONFIG = {
+    "provider": "elevenlabs",
+    "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+    "modelId": "eleven_multilingual_v2",
+    "outputFormat": "mp3_44100_128",
+    "cacheDir": "./.tts_cache",
 }
 ACTIVE_HABIT_FIELD_ORDER = (
     "id",
@@ -93,11 +110,45 @@ def load_config():
     return config
 
 
+def acquire_run_lock(lock_path):
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    lock_file = open(lock_path, "w")
+    try:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        lock_file.close()
+        return None
+    return lock_file
+
+
 def get_config_path(config, config_key):
     config_path = pathlib.Path(config[config_key]).expanduser()
     if not config_path.is_absolute():
         config_path = (PROJECT_ROOT / config_path).resolve()
     return config_path
+
+
+def get_text_to_speech_config(config):
+    text_to_speech_config = DEFAULT_TEXT_TO_SPEECH_CONFIG.copy()
+    configured_values = config.get("textToSpeech", {})
+    if not isinstance(configured_values, dict):
+        raise ValueError("Config field 'textToSpeech' must be an object")
+    text_to_speech_config.update(configured_values)
+
+    if text_to_speech_config["provider"] != "elevenlabs":
+        raise ValueError("Only ElevenLabs text-to-speech is supported")
+
+    for field_name in ("voiceId", "modelId", "outputFormat", "cacheDir"):
+        if not isinstance(text_to_speech_config.get(field_name), str):
+            raise ValueError(f"textToSpeech.{field_name} must be a string")
+        if not text_to_speech_config[field_name].strip():
+            raise ValueError(f"textToSpeech.{field_name} must not be empty")
+
+    cache_dir = pathlib.Path(text_to_speech_config["cacheDir"]).expanduser()
+    if not cache_dir.is_absolute():
+        cache_dir = (PROJECT_ROOT / cache_dir).resolve()
+    text_to_speech_config["cacheDir"] = str(cache_dir)
+    return text_to_speech_config
 
 
 def load_json_list(json_path, description):
@@ -742,6 +793,183 @@ def create_persistent_desktop_notifications(ready_triggers):
     return notification_count
 
 
+def get_spoken_habit_text(habit):
+    habit_name = remove_existing_prefix(habit.get("name", "")).strip()
+    habit_name = re.sub(
+        r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]",
+        lambda match: match.group(2) or match.group(1),
+        habit_name,
+    )
+    return habit_name.replace("`", "").strip()
+
+
+def is_bluetooth_audio_sink_metadata(wpctl_output):
+    return (
+        'device.api = "bluez5"' in wpctl_output
+        or 'node.name = "bluez_output.' in wpctl_output
+        or "api.bluez5." in wpctl_output
+    )
+
+
+def is_default_audio_output_bluetooth():
+    try:
+        result = subprocess.run(
+            ["wpctl", "inspect", "@DEFAULT_AUDIO_SINK@"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError) as error:
+        logger.warning(f"Cannot inspect default audio sink for TTS: {error}")
+        return False
+    return is_bluetooth_audio_sink_metadata(result.stdout)
+
+
+def get_text_to_speech_audio_path(text_to_speech_config, habit_text):
+    cache_payload = {
+        "provider": text_to_speech_config["provider"],
+        "voiceId": text_to_speech_config["voiceId"],
+        "modelId": text_to_speech_config["modelId"],
+        "outputFormat": text_to_speech_config["outputFormat"],
+        "text": habit_text,
+    }
+    cache_key = hashlib.sha256(
+        json.dumps(cache_payload, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+    return pathlib.Path(text_to_speech_config["cacheDir"]) / f"{cache_key}.mp3"
+
+
+def build_elevenlabs_text_to_speech_request(text_to_speech_config, habit_text, api_key):
+    encoded_voice_id = urllib.parse.quote(text_to_speech_config["voiceId"], safe="")
+    encoded_output_format = urllib.parse.quote(
+        text_to_speech_config["outputFormat"], safe=""
+    )
+    url = (
+        f"https://api.elevenlabs.io/v1/text-to-speech/{encoded_voice_id}"
+        f"?output_format={encoded_output_format}"
+    )
+    request_body = json.dumps(
+        {"text": habit_text, "model_id": text_to_speech_config["modelId"]}
+    ).encode("utf-8")
+    return urllib.request.Request(
+        url,
+        data=request_body,
+        headers={
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": api_key,
+        },
+        method="POST",
+    )
+
+
+def fetch_elevenlabs_text_to_speech_audio(text_to_speech_config, habit_text, api_key):
+    request = build_elevenlabs_text_to_speech_request(
+        text_to_speech_config, habit_text, api_key
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=45) as response:
+            return response.read()
+    except urllib.error.HTTPError as error:
+        error_body = error.read().decode("utf-8", errors="replace").strip()
+        raise RuntimeError(
+            f"ElevenLabs TTS failed with HTTP {error.code}: {error_body[:300]}"
+        ) from error
+    except urllib.error.URLError as error:
+        raise RuntimeError(f"ElevenLabs TTS request failed: {error.reason}") from error
+
+
+def get_or_create_text_to_speech_audio(text_to_speech_config, habit_text):
+    audio_path = get_text_to_speech_audio_path(text_to_speech_config, habit_text)
+    if audio_path.exists():
+        return audio_path
+
+    api_key = os.environ.get(ELEVENLABS_API_KEY_ENV)
+    if not api_key:
+        raise RuntimeError(
+            f"Missing required environment variable: {ELEVENLABS_API_KEY_ENV}"
+        )
+
+    audio_path.parent.mkdir(parents=True, exist_ok=True)
+    audio_bytes = fetch_elevenlabs_text_to_speech_audio(
+        text_to_speech_config, habit_text, api_key
+    )
+    temporary_path = audio_path.with_suffix(".tmp")
+    with open(temporary_path, "wb") as audio_file:
+        audio_file.write(audio_bytes)
+    temporary_path.replace(audio_path)
+    logger.info(f"Cached TTS audio at {audio_path}")
+    return audio_path
+
+
+def play_audio_file(audio_path):
+    subprocess.run(
+        [
+            "ffplay",
+            "-nodisp",
+            "-autoexit",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            str(audio_path),
+        ],
+        check=True,
+    )
+
+
+def get_ready_trigger_key(ready_trigger):
+    return (
+        str(ready_trigger["habit"].get("id")),
+        ready_trigger["trigger"].get("time"),
+    )
+
+
+def speak_ready_habit_triggers(text_to_speech_config, ready_triggers):
+    spoken_triggers = []
+    for item in ready_triggers:
+        habit_text = get_spoken_habit_text(item["habit"])
+        if not habit_text:
+            logger.warning("Skipping TTS for habit with empty name")
+            continue
+        if not is_default_audio_output_bluetooth():
+            logger.warning(
+                "Skipping TTS because the default audio output is not a Bluetooth sink"
+            )
+            break
+        try:
+            audio_path = get_or_create_text_to_speech_audio(
+                text_to_speech_config, habit_text
+            )
+            if not is_default_audio_output_bluetooth():
+                logger.warning(
+                    "Skipping TTS playback because the default audio output changed"
+                )
+                break
+            play_audio_file(audio_path)
+        except (RuntimeError, subprocess.CalledProcessError) as error:
+            logger.error(f"Text-to-speech output failed: {error}")
+            break
+        spoken_triggers.append(item)
+
+    if spoken_triggers:
+        logger.info(f"Spoke {len(spoken_triggers)} habit triggers")
+    return spoken_triggers
+
+
+def get_delivered_ready_triggers(ready_triggers, spoken_triggers):
+    spoken_trigger_keys = {
+        get_ready_trigger_key(spoken_trigger) for spoken_trigger in spoken_triggers
+    }
+    delivered_triggers = []
+    for item in ready_triggers:
+        due_outputs = get_habit_due_outputs(item["habit"])
+        if due_outputs[DUE_OUTPUT_TEXT_TO_SPEECH]:
+            if get_ready_trigger_key(item) not in spoken_trigger_keys:
+                continue
+        delivered_triggers.append(item)
+    return delivered_triggers
+
+
 def get_completed_habits_after_ready_triggers(ready_triggers, schedule):
     for item in ready_triggers:
         item["trigger"]["triggered"] = True
@@ -769,8 +997,14 @@ def main(test_mode=None):
     if run_in_test_mode:
         logger.info("Running in test mode.")
 
+    run_lock = acquire_run_lock(RUN_LOCK_FILE)
+    if run_lock is None:
+        logger.warning("Another prioritise_habits run is already active; skipping.")
+        return
+
     try:
         config = load_config()
+        text_to_speech_config = get_text_to_speech_config(config)
         store_path = get_config_path(config, "habitsStoreFile")
         active_habits_path = get_config_path(config, "activeHabitsFile")
         store = load_habit_store(store_path, active_habits_path)
@@ -791,15 +1025,24 @@ def main(test_mode=None):
             notification_ready_triggers = get_ready_triggers_for_due_output(
                 ready_triggers, DUE_OUTPUT_DESKTOP_NOTIFICATION
             )
+            text_to_speech_ready_triggers = get_ready_triggers_for_due_output(
+                ready_triggers, DUE_OUTPUT_TEXT_TO_SPEECH
+            )
             appended_trigger_count = append_ready_habit_triggers(
                 NOTES_FILE, notes_ready_triggers
             )
             notification_count = create_persistent_desktop_notifications(
                 notification_ready_triggers
             )
+            spoken_triggers = speak_ready_habit_triggers(
+                text_to_speech_config, text_to_speech_ready_triggers
+            )
+            delivered_ready_triggers = get_delivered_ready_triggers(
+                ready_triggers, spoken_triggers
+            )
             completed_habits, checkin_times_by_habit_id = (
                 get_completed_habits_after_ready_triggers(
-                    ready_triggers, habit_trigger_schedule
+                    delivered_ready_triggers, habit_trigger_schedule
                 )
             )
             save_habit_trigger_schedule(
@@ -819,6 +1062,7 @@ def main(test_mode=None):
             logger.info(
                 f"Appended {appended_trigger_count} ready habit triggers, "
                 f"created {notification_count} desktop notifications, "
+                f"spoke {len(spoken_triggers)} habit triggers, "
                 f"marked {len(checkins_to_apply)} habits as completed, "
                 f"and applied {applied_checkins} checkins."
             )
@@ -839,6 +1083,8 @@ def main(test_mode=None):
         logger.error(f"Missing required file: {error}")
     except (json.JSONDecodeError, ValueError, KeyError, TypeError) as error:
         logger.error(f"Failed to process local habit store/config: {error}")
+    finally:
+        run_lock.close()
 
 
 if __name__ == "__main__":

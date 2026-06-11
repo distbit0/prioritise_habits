@@ -92,6 +92,8 @@ output/
 data/
 **/node_modules/
 .habit_trigger_schedule
+.habit_run.lock
+.tts_cache/
 .notes_habit_trigger_schedule
 .last_notes_append
 .pending_notes_habits

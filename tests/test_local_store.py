@@ -5,15 +5,20 @@ import pytest
 
 from src.main import (
     apply_checkin_payload,
+    acquire_run_lock,
     create_persistent_desktop_notifications,
+    get_delivered_ready_triggers,
     get_habit_due_outputs,
     get_completed_habits_after_ready_triggers,
+    get_or_create_text_to_speech_audio,
     get_ready_habit_triggers,
     get_ready_triggers_for_due_output,
+    is_bluetooth_audio_sink_metadata,
     load_habit_store,
     merge_habit_updates,
     save_habit_store,
     sample_habit_trigger_time,
+    speak_ready_habit_triggers,
 )
 
 
@@ -113,12 +118,13 @@ def test_save_habit_store_splits_active_and_archived_habits(tmp_path):
     assert store["checkins"] == {"habit-1": []}
 
 
-def test_habit_due_outputs_default_to_md_only():
+def test_habit_due_outputs_default_to_md_and_tts():
     habit = {"id": "habit-1", "name": "Read"}
 
     assert get_habit_due_outputs(habit) == {
         "writeToMd": True,
         "desktopNotification": False,
+        "textToSpeech": True,
     }
 
 
@@ -304,6 +310,161 @@ def test_persistent_desktop_notifications_use_notify_send(monkeypatch):
             "check": True,
         }
     ]
+
+
+def test_bluetooth_sink_detection_uses_wpctl_metadata():
+    bluetooth_sink_output = """
+id 223, type PipeWire:Interface:Node
+    api.bluez5.address = "90:BF:D9:5D:41:D0"
+    device.api = "bluez5"
+  * media.class = "Audio/Sink"
+  * node.description = "soundcore Space Q45"
+  * node.name = "bluez_output.90_BF_D9_5D_41_D0.1"
+"""
+    internal_speaker_output = """
+id 90, type PipeWire:Interface:Node
+    api.alsa.path = "hw:sofsoundwire,2"
+    device.api = "alsa"
+    device.icon_name = "audio-speakers"
+  * media.class = "Audio/Sink"
+  * node.description = "Lunar Lake-M HD Audio Controller Speaker"
+  * node.name = "alsa_output.pci-0000_00_1f.3-platform-sof_sdw.HiFi__Speaker__sink"
+"""
+
+    assert is_bluetooth_audio_sink_metadata(bluetooth_sink_output)
+    assert not is_bluetooth_audio_sink_metadata(internal_speaker_output)
+
+
+def test_text_to_speech_audio_is_cached(tmp_path, monkeypatch):
+    text_to_speech_config = {
+        "provider": "elevenlabs",
+        "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+        "modelId": "eleven_multilingual_v2",
+        "outputFormat": "mp3_44100_128",
+        "cacheDir": str(tmp_path),
+    }
+    fetch_calls = []
+
+    def fake_fetch(config, habit_text, api_key):
+        fetch_calls.append(
+            {
+                "voiceId": config["voiceId"],
+                "habitText": habit_text,
+                "hasApiKey": bool(api_key),
+            }
+        )
+        return b"cached mp3 bytes"
+
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "redacted-test-key")
+    monkeypatch.setattr("src.main.fetch_elevenlabs_text_to_speech_audio", fake_fetch)
+
+    first_audio_path = get_or_create_text_to_speech_audio(
+        text_to_speech_config, "reply to unread msg"
+    )
+    second_audio_path = get_or_create_text_to_speech_audio(
+        text_to_speech_config, "reply to unread msg"
+    )
+
+    assert first_audio_path == second_audio_path
+    assert first_audio_path.read_bytes() == b"cached mp3 bytes"
+    assert fetch_calls == [
+        {
+            "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+            "habitText": "reply to unread msg",
+            "hasApiKey": True,
+        }
+    ]
+
+
+def test_text_to_speech_speaks_sequentially_and_stops_without_bluetooth(
+    tmp_path, monkeypatch
+):
+    text_to_speech_config = {"cacheDir": str(tmp_path)}
+    ready_triggers = [
+        {
+            "habit": {
+                "id": "habit-1",
+                "name": "1. reply to unread msg",
+                "dueOutputs": {"textToSpeech": True},
+            },
+            "trigger": {"time": "2026-06-12T06:30:00+07:00"},
+        },
+        {
+            "habit": {
+                "id": "habit-2",
+                "name": "2. ask one open follow-up about what they said",
+                "dueOutputs": {"textToSpeech": True},
+            },
+            "trigger": {"time": "2026-06-12T06:31:00+07:00"},
+        },
+    ]
+    bluetooth_states = iter([True, True, False])
+    generated_text = []
+    played_paths = []
+
+    def fake_get_audio(config, habit_text):
+        audio_path = tmp_path / f"{len(generated_text)}.mp3"
+        audio_path.write_bytes(b"cached mp3 bytes")
+        generated_text.append(habit_text)
+        return audio_path
+
+    monkeypatch.setattr(
+        "src.main.is_default_audio_output_bluetooth",
+        lambda: next(bluetooth_states),
+    )
+    monkeypatch.setattr("src.main.get_or_create_text_to_speech_audio", fake_get_audio)
+    monkeypatch.setattr(
+        "src.main.play_audio_file", lambda path: played_paths.append(path)
+    )
+
+    spoken_triggers = speak_ready_habit_triggers(text_to_speech_config, ready_triggers)
+
+    assert [item["habit"]["id"] for item in spoken_triggers] == ["habit-1"]
+    assert generated_text == ["reply to unread msg"]
+    assert [path.name for path in played_paths] == ["0.mp3"]
+
+
+def test_tts_enabled_triggers_remain_pending_until_spoken():
+    tts_trigger = {
+        "habit": {
+            "id": "habit-1",
+            "name": "1. reply to unread msg",
+            "dueOutputs": {"textToSpeech": True},
+        },
+        "trigger": {"time": "2026-06-12T06:30:00+07:00"},
+    }
+    notes_only_trigger = {
+        "habit": {
+            "id": "habit-2",
+            "name": "2. call Noni",
+            "dueOutputs": {"writeToMd": True, "textToSpeech": False},
+        },
+        "trigger": {"time": "2026-06-12T06:31:00+07:00"},
+    }
+
+    delivered_triggers = get_delivered_ready_triggers(
+        [tts_trigger, notes_only_trigger],
+        [],
+    )
+
+    assert delivered_triggers == [notes_only_trigger]
+    assert get_delivered_ready_triggers(
+        [tts_trigger, notes_only_trigger],
+        [tts_trigger],
+    ) == [tts_trigger, notes_only_trigger]
+
+
+def test_run_lock_skips_second_process(tmp_path):
+    lock_path = tmp_path / "habit.lock"
+
+    first_lock = acquire_run_lock(lock_path)
+    second_lock = acquire_run_lock(lock_path)
+
+    try:
+        assert first_lock is not None
+        assert second_lock is None
+    finally:
+        first_lock.close()
 
 
 def test_completed_habit_waits_for_all_daily_triggers():
