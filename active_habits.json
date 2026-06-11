@@ -3,7 +3,9 @@
     "id": "66dacd5fdce64115dd651851",
     "name": "1. save `bitwarden` > keepas, scrshot droid apps",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=30",
-    "reminders": ["06:00"],
+    "reminders": [
+      "06:00"
+    ],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -34,7 +36,9 @@
     "id": "66dacdc8dce64115dd651a85",
     "name": "1. Call Noni ",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=19",
-    "reminders": ["09:00"],
+    "reminders": [
+      "09:00"
+    ],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -58,14 +62,18 @@
     "sectionId": "-1",
     "targetDays": 0,
     "completedCycles": 0,
-    "exDates": ["20250124"],
+    "exDates": [
+      "20250124"
+    ],
     "style": 1
   },
   {
     "id": "66dad169dce64115dd654e01",
-    "name": "fleshout & pub 1 note w/ codex [[writing-index]] [[infofi-index]]",
+    "name": "1. fleshout & pub 1 note w/ codex [[writing-index]] [[infofi-index]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=3",
-    "reminders": ["06:00"],
+    "reminders": [
+      "06:00"
+    ],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -157,7 +165,7 @@
   },
   {
     "id": "reply-to-unread-msg",
-    "name": "2. reply to unread msg",
+    "name": "1. reply to unread msg",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260410,
@@ -169,7 +177,7 @@
       "writeToMd": false,
       "desktopNotification": true
     },
-    "sortOrder": 2,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -189,7 +197,7 @@
   },
   {
     "id": "journal-emotions-daily",
-    "name": "1. journal to understand my feelings and detach from emotions",
+    "name": "2. journal to understand my feelings and detach from emotions",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260607,
@@ -201,7 +209,7 @@
       "writeToMd": true,
       "desktopNotification": false
     },
-    "sortOrder": 1,
+    "sortOrder": 2,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
