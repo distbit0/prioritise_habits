@@ -959,5 +959,39 @@
     "completedCycles": 0,
     "exDates": [],
     "style": 1
+  },
+  {
+    "id": "twitter-2043018085700157500-audio",
+    "name": "2. twitter 2043018085700157500 audio",
+    "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
+    "reminders": [],
+    "targetStartDate": 20260613,
+    "goal": 1.0,
+    "step": 0.0,
+    "unit": "Count",
+    "dailyTriggerCount": 1,
+    "dueOutputs": {
+      "writeToMd": false,
+      "desktopNotification": false,
+      "textToSpeech": true
+    },
+    "audioFile": "audio/twitter_2043018085700157500_audio.mp3",
+    "sortOrder": 2,
+    "status": 0,
+    "archivedTime": null,
+    "iconRes": "habit_daily_check_in",
+    "color": "#97E38B",
+    "encouragement": "",
+    "totalCheckIns": 0,
+    "createdTime": "2026-06-13T00:00:00.000+0000",
+    "modifiedTime": "2026-06-13T00:00:00.000+0000",
+    "type": "Boolean",
+    "etag": "local-twitter-2043018085700157500-audio",
+    "recordEnable": false,
+    "sectionId": "-1",
+    "targetDays": 0,
+    "completedCycles": 0,
+    "exDates": [],
+    "style": 1
   }
 ]
