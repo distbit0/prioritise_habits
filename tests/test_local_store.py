@@ -21,6 +21,7 @@ from src.main import (
     load_habit_store,
     mark_triggers_output_delivered,
     merge_habit_updates,
+    play_audio_file,
     save_habit_store,
     sample_habit_trigger_time,
     speak_ready_habit_triggers,
@@ -470,6 +471,36 @@ def test_text_to_speech_audio_is_cached(tmp_path, monkeypatch):
             "voiceId": "JBFqnCBsd6RMkjVDRZzb",
             "habitText": "reply to unread msg",
             "hasApiKey": True,
+        }
+    ]
+
+
+def test_audio_playback_adds_silence_lead_in(tmp_path, monkeypatch):
+    audio_path = tmp_path / "habit.mp3"
+    audio_path.write_bytes(b"cached mp3 bytes")
+    subprocess_calls = []
+
+    def fake_run(command, check):
+        subprocess_calls.append({"command": command, "check": check})
+
+    monkeypatch.setattr("src.main.subprocess.run", fake_run)
+
+    play_audio_file(audio_path)
+
+    assert subprocess_calls == [
+        {
+            "command": [
+                "ffplay",
+                "-nodisp",
+                "-autoexit",
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-af",
+                "adelay=750:all=1",
+                str(audio_path),
+            ],
+            "check": True,
         }
     ]
 

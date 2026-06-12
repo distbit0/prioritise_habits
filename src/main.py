@@ -40,6 +40,7 @@ DEFAULT_TEXT_TO_SPEECH_CONFIG = {
     "outputFormat": "mp3_44100_128",
     "cacheDir": "./.tts_cache",
 }
+AUDIO_PLAYBACK_LEAD_IN_MILLISECONDS = 750
 ACTIVE_HABIT_FIELD_ORDER = (
     "id",
     "name",
@@ -1004,6 +1005,8 @@ def play_audio_file(audio_path):
             "-hide_banner",
             "-loglevel",
             "error",
+            "-af",
+            f"adelay={AUDIO_PLAYBACK_LEAD_IN_MILLISECONDS}:all=1",
             str(audio_path),
         ],
         check=True,

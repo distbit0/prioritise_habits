@@ -119,7 +119,7 @@ Each run creates or reuses a daily trigger schedule at `.habit_trigger_schedule`
 For each due habit trigger, the script samples a local time from 06:00 through 12:00.
 Only triggers whose sampled time has passed are written to their enabled outputs.
 Desktop notifications are created with `notify-send` using critical urgency and no expiry.
-Text-to-speech uses cached ElevenLabs MP3 files and plays them sequentially with `ffplay`.
+Text-to-speech uses cached ElevenLabs MP3 files and plays them sequentially with `ffplay`, adding a short silent lead-in so Bluetooth outputs do not clip the first word.
 Habits can set `audioFile` to play a custom MP3 through the same gated audio channel instead of generating speech.
 Audio only runs when `wpctl inspect @DEFAULT_AUDIO_SINK@` shows a Bluetooth sink.
 If the default output is not Bluetooth, the trigger is left pending for a later run.
