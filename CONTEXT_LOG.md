@@ -14,6 +14,7 @@
 - `textToSpeech` speaks habit prompts through cached ElevenLabs MP3s. It intentionally waits for a Bluetooth default audio sink before generating or playing audio, so prompts are not spoken through the laptop speakers.
 - The cron entry runs this repo every minute. A repo-local run lock is required because cached MP3 playback is sequential and can last longer than one minute.
 - TTS needs the habit cron entry to source `/home/pimania/dev/guiFromCron/crongui.sh` before running, otherwise cron lacks `XDG_RUNTIME_DIR`/DBus and `wpctl inspect @DEFAULT_AUDIO_SINK@` cannot reach PipeWire. The cron command also needs `uv run --env-file .env` so ElevenLabs cache misses can use the project-specific API key.
+- `.habit_trigger_schedule` tracks delivery per output channel in `deliveredOutputs`, not only whole-trigger completion. This prevents Markdown/notification repeats while TTS is still pending for Bluetooth audio; for legacy ready schedule entries, non-TTS outputs are treated as already delivered.
 - Dating advice prompts are modeled as 20 TTS-enabled habits on a 20-day interval, with exactly one dating habit target-starting per day and two advice items combined into each habit. The local due logic treats unchecked habits as overdue after `targetStartDate`, so the no-overlap cadence assumes the normal scheduled run records each delivered habit as checked.
 
 ## Notes filename slug migration

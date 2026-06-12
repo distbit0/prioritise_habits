@@ -572,12 +572,62 @@ def get_habit_due_outputs(habit):
     return outputs
 
 
+def is_trigger_delivered(habit, trigger):
+    delivered_outputs = trigger.get("deliveredOutputs", {})
+    return all(
+        delivered_outputs.get(output_name)
+        for output_name, enabled in get_habit_due_outputs(habit).items()
+        if enabled
+    )
+
+
+def update_trigger_completion(habit, trigger):
+    trigger["triggered"] = is_trigger_delivered(habit, trigger)
+
+
+def normalize_trigger_delivery_state(habit, trigger, now):
+    trigger_time = datetime.fromisoformat(trigger["time"])
+    due_outputs = get_habit_due_outputs(habit)
+    delivered_outputs = trigger.get("deliveredOutputs")
+
+    if trigger.get("triggered"):
+        normalized_outputs = {
+            output_name: enabled for output_name, enabled in due_outputs.items()
+        }
+    elif isinstance(delivered_outputs, dict):
+        normalized_outputs = {
+            output_name: bool(enabled and delivered_outputs.get(output_name))
+            for output_name, enabled in due_outputs.items()
+        }
+    else:
+        legacy_ready_trigger = trigger_time <= now
+        normalized_outputs = {
+            output_name: bool(
+                enabled
+                and legacy_ready_trigger
+                and output_name != DUE_OUTPUT_TEXT_TO_SPEECH
+            )
+            for output_name, enabled in due_outputs.items()
+        }
+
+    trigger["deliveredOutputs"] = normalized_outputs
+    update_trigger_completion(habit, trigger)
+    return trigger_time
+
+
 def get_ready_triggers_for_due_output(ready_triggers, output_name):
     return [
         item
         for item in ready_triggers
         if get_habit_due_outputs(item["habit"])[output_name]
+        and not item["trigger"].get("deliveredOutputs", {}).get(output_name)
     ]
+
+
+def mark_triggers_output_delivered(ready_triggers, output_name):
+    for item in ready_triggers:
+        item["trigger"].setdefault("deliveredOutputs", {})[output_name] = True
+        update_trigger_completion(item["habit"], item["trigger"])
 
 
 def sample_habit_trigger_time(trigger_date, local_timezone):
@@ -621,6 +671,9 @@ def get_ready_habit_triggers(due_habits, schedule_path, now):
                         now.date(), now.tzinfo
                     ).isoformat(),
                     "triggered": False,
+                    "deliveredOutputs": {
+                        output_name: False for output_name in DEFAULT_DUE_OUTPUTS
+                    },
                 }
             )
         habit_triggers.sort(key=lambda trigger: trigger["time"])
@@ -631,9 +684,9 @@ def get_ready_habit_triggers(due_habits, schedule_path, now):
         if habit is None:
             continue
         for trigger in habit_triggers:
+            trigger_time = normalize_trigger_delivery_state(habit, trigger, now)
             if trigger.get("triggered"):
                 continue
-            trigger_time = datetime.fromisoformat(trigger["time"])
             if trigger_time <= now:
                 ready_triggers.append({"habit": habit, "trigger": trigger})
 
@@ -917,13 +970,6 @@ def play_audio_file(audio_path):
     )
 
 
-def get_ready_trigger_key(ready_trigger):
-    return (
-        str(ready_trigger["habit"].get("id")),
-        ready_trigger["trigger"].get("time"),
-    )
-
-
 def speak_ready_habit_triggers(text_to_speech_config, ready_triggers):
     spoken_triggers = []
     for item in ready_triggers:
@@ -956,23 +1002,9 @@ def speak_ready_habit_triggers(text_to_speech_config, ready_triggers):
     return spoken_triggers
 
 
-def get_delivered_ready_triggers(ready_triggers, spoken_triggers):
-    spoken_trigger_keys = {
-        get_ready_trigger_key(spoken_trigger) for spoken_trigger in spoken_triggers
-    }
-    delivered_triggers = []
-    for item in ready_triggers:
-        due_outputs = get_habit_due_outputs(item["habit"])
-        if due_outputs[DUE_OUTPUT_TEXT_TO_SPEECH]:
-            if get_ready_trigger_key(item) not in spoken_trigger_keys:
-                continue
-        delivered_triggers.append(item)
-    return delivered_triggers
-
-
 def get_completed_habits_after_ready_triggers(ready_triggers, schedule):
     for item in ready_triggers:
-        item["trigger"]["triggered"] = True
+        update_trigger_completion(item["habit"], item["trigger"])
 
     ready_habits_by_id = {
         str(item["habit"]["id"]): item["habit"] for item in ready_triggers
@@ -1031,18 +1063,33 @@ def main(test_mode=None):
             appended_trigger_count = append_ready_habit_triggers(
                 NOTES_FILE, notes_ready_triggers
             )
+            mark_triggers_output_delivered(
+                notes_ready_triggers, DUE_OUTPUT_WRITE_TO_MD
+            )
+            save_habit_trigger_schedule(
+                HABIT_TRIGGER_SCHEDULE_FILE, habit_trigger_schedule
+            )
             notification_count = create_persistent_desktop_notifications(
                 notification_ready_triggers
+            )
+            mark_triggers_output_delivered(
+                notification_ready_triggers, DUE_OUTPUT_DESKTOP_NOTIFICATION
+            )
+            save_habit_trigger_schedule(
+                HABIT_TRIGGER_SCHEDULE_FILE, habit_trigger_schedule
             )
             spoken_triggers = speak_ready_habit_triggers(
                 text_to_speech_config, text_to_speech_ready_triggers
             )
-            delivered_ready_triggers = get_delivered_ready_triggers(
-                ready_triggers, spoken_triggers
+            mark_triggers_output_delivered(
+                spoken_triggers, DUE_OUTPUT_TEXT_TO_SPEECH
+            )
+            save_habit_trigger_schedule(
+                HABIT_TRIGGER_SCHEDULE_FILE, habit_trigger_schedule
             )
             completed_habits, checkin_times_by_habit_id = (
                 get_completed_habits_after_ready_triggers(
-                    delivered_ready_triggers, habit_trigger_schedule
+                    ready_triggers, habit_trigger_schedule
                 )
             )
             save_habit_trigger_schedule(

@@ -4,10 +4,12 @@ from datetime import datetime, timezone
 import pytest
 
 from src.main import (
+    DUE_OUTPUT_TEXT_TO_SPEECH,
+    DUE_OUTPUT_WRITE_TO_MD,
     apply_checkin_payload,
     acquire_run_lock,
+    append_ready_habit_triggers,
     create_persistent_desktop_notifications,
-    get_delivered_ready_triggers,
     get_habit_due_outputs,
     get_completed_habits_after_ready_triggers,
     get_or_create_text_to_speech_audio,
@@ -15,6 +17,7 @@ from src.main import (
     get_ready_triggers_for_due_output,
     is_bluetooth_audio_sink_metadata,
     load_habit_store,
+    mark_triggers_output_delivered,
     merge_habit_updates,
     save_habit_store,
     sample_habit_trigger_time,
@@ -269,6 +272,99 @@ def test_ready_habit_triggers_uses_persisted_daily_schedule(tmp_path):
     assert schedule["triggers"]["habit-1"][1]["triggered"] is False
 
 
+def test_legacy_ready_triggers_keep_non_tts_outputs_delivered(tmp_path):
+    schedule_path = tmp_path / "schedule.json"
+    schedule_path.write_text(
+        json.dumps(
+            {
+                "date": "20260410",
+                "triggers": {
+                    "habit-1": [
+                        {
+                            "time": "2026-04-10T06:30:00+00:00",
+                            "triggered": False,
+                        },
+                        {
+                            "time": "2026-04-10T11:30:00+00:00",
+                            "triggered": False,
+                        },
+                    ]
+                },
+            }
+        )
+    )
+    due_habits = [
+        {
+            "id": "habit-1",
+            "name": "Sequence",
+            "dailyTriggerCount": 2,
+            "dueOutputs": {
+                "writeToMd": True,
+                "desktopNotification": True,
+                "textToSpeech": True,
+            },
+        }
+    ]
+
+    ready_triggers, schedule = get_ready_habit_triggers(
+        due_habits,
+        schedule_path,
+        datetime(2026, 4, 10, 9, 0, tzinfo=timezone.utc),
+    )
+
+    assert len(ready_triggers) == 1
+    assert ready_triggers[0]["trigger"]["deliveredOutputs"] == {
+        "writeToMd": True,
+        "desktopNotification": True,
+        "textToSpeech": False,
+    }
+    assert schedule["triggers"]["habit-1"][1]["deliveredOutputs"] == {
+        "writeToMd": False,
+        "desktopNotification": False,
+        "textToSpeech": False,
+    }
+
+
+def test_delivered_outputs_complete_stale_untriggered_schedule_entry(tmp_path):
+    schedule_path = tmp_path / "schedule.json"
+    schedule_path.write_text(
+        json.dumps(
+            {
+                "date": "20260410",
+                "triggers": {
+                    "habit-1": [
+                        {
+                            "time": "2026-04-10T06:30:00+00:00",
+                            "triggered": False,
+                            "deliveredOutputs": {
+                                "writeToMd": True,
+                                "desktopNotification": False,
+                                "textToSpeech": True,
+                            },
+                        }
+                    ]
+                },
+            }
+        )
+    )
+    due_habits = [
+        {
+            "id": "habit-1",
+            "name": "Read",
+            "dueOutputs": {"writeToMd": True, "textToSpeech": True},
+        }
+    ]
+
+    ready_triggers, schedule = get_ready_habit_triggers(
+        due_habits,
+        schedule_path,
+        datetime(2026, 4, 10, 9, 0, tzinfo=timezone.utc),
+    )
+
+    assert ready_triggers == []
+    assert schedule["triggers"]["habit-1"][0]["triggered"] is True
+
+
 def test_sample_habit_trigger_time_stays_in_morning_window():
     trigger_time = sample_habit_trigger_time(
         datetime(2026, 4, 10, tzinfo=timezone.utc).date(),
@@ -424,34 +520,67 @@ def test_text_to_speech_speaks_sequentially_and_stops_without_bluetooth(
     assert [path.name for path in played_paths] == ["0.mp3"]
 
 
-def test_tts_enabled_triggers_remain_pending_until_spoken():
-    tts_trigger = {
+def test_delivered_output_is_not_routed_again_while_tts_waits():
+    ready_trigger = {
         "habit": {
             "id": "habit-1",
             "name": "1. reply to unread msg",
-            "dueOutputs": {"textToSpeech": True},
+            "dueOutputs": {"writeToMd": True, "textToSpeech": True},
         },
-        "trigger": {"time": "2026-06-12T06:30:00+07:00"},
-    }
-    notes_only_trigger = {
-        "habit": {
-            "id": "habit-2",
-            "name": "2. call Noni",
-            "dueOutputs": {"writeToMd": True, "textToSpeech": False},
+        "trigger": {
+            "time": "2026-06-12T06:30:00+07:00",
+            "triggered": False,
+            "deliveredOutputs": {
+                "writeToMd": True,
+                "desktopNotification": False,
+                "textToSpeech": False,
+            },
         },
-        "trigger": {"time": "2026-06-12T06:31:00+07:00"},
     }
 
-    delivered_triggers = get_delivered_ready_triggers(
-        [tts_trigger, notes_only_trigger],
-        [],
+    assert (
+        get_ready_triggers_for_due_output([ready_trigger], DUE_OUTPUT_WRITE_TO_MD)
+        == []
     )
+    assert get_ready_triggers_for_due_output(
+        [ready_trigger], DUE_OUTPUT_TEXT_TO_SPEECH
+    ) == [ready_trigger]
 
-    assert delivered_triggers == [notes_only_trigger]
-    assert get_delivered_ready_triggers(
-        [tts_trigger, notes_only_trigger],
-        [tts_trigger],
-    ) == [tts_trigger, notes_only_trigger]
+
+def test_deleted_markdown_line_is_not_reappended_after_delivery(tmp_path):
+    notes_path = tmp_path / "temp-index.md"
+    ready_trigger = {
+        "habit": {
+            "id": "habit-1",
+            "name": "1. reply to unread msg",
+            "dueOutputs": {"writeToMd": True, "textToSpeech": True},
+        },
+        "trigger": {
+            "time": "2026-06-12T06:30:00+07:00",
+            "triggered": False,
+            "deliveredOutputs": {
+                "writeToMd": False,
+                "desktopNotification": False,
+                "textToSpeech": False,
+            },
+        },
+    }
+
+    markdown_triggers = get_ready_triggers_for_due_output(
+        [ready_trigger], DUE_OUTPUT_WRITE_TO_MD
+    )
+    append_ready_habit_triggers(notes_path, markdown_triggers)
+    mark_triggers_output_delivered(markdown_triggers, DUE_OUTPUT_WRITE_TO_MD)
+    notes_path.unlink()
+
+    second_markdown_triggers = get_ready_triggers_for_due_output(
+        [ready_trigger], DUE_OUTPUT_WRITE_TO_MD
+    )
+    append_ready_habit_triggers(notes_path, second_markdown_triggers)
+
+    assert second_markdown_triggers == []
+    assert not notes_path.exists()
+    assert ready_trigger["trigger"]["triggered"] is False
 
 
 def test_run_lock_skips_second_process(tmp_path):
@@ -468,28 +597,54 @@ def test_run_lock_skips_second_process(tmp_path):
 
 
 def test_completed_habit_waits_for_all_daily_triggers():
-    habit = {"id": "habit-1", "name": "Sequence"}
+    habit = {
+        "id": "habit-1",
+        "name": "Sequence",
+        "dueOutputs": {"writeToMd": True, "textToSpeech": False},
+    }
     schedule = {
         "date": "20260410",
         "triggers": {
             "habit-1": [
-                {"time": "2026-04-10T06:30:00+00:00", "triggered": False},
-                {"time": "2026-04-10T11:30:00+00:00", "triggered": False},
+                {
+                    "time": "2026-04-10T06:30:00+00:00",
+                    "triggered": False,
+                    "deliveredOutputs": {
+                        "writeToMd": False,
+                        "desktopNotification": False,
+                        "textToSpeech": False,
+                    },
+                },
+                {
+                    "time": "2026-04-10T11:30:00+00:00",
+                    "triggered": False,
+                    "deliveredOutputs": {
+                        "writeToMd": False,
+                        "desktopNotification": False,
+                        "textToSpeech": False,
+                    },
+                },
             ]
         },
     }
+    first_trigger = {"habit": habit, "trigger": schedule["triggers"]["habit-1"][0]}
+    second_trigger = {"habit": habit, "trigger": schedule["triggers"]["habit-1"][1]}
+
+    mark_triggers_output_delivered([first_trigger], DUE_OUTPUT_WRITE_TO_MD)
 
     first_completed_habits, first_checkin_times = get_completed_habits_after_ready_triggers(
-        [{"habit": habit, "trigger": schedule["triggers"]["habit-1"][0]}],
+        [first_trigger],
         schedule,
     )
 
     assert first_completed_habits == []
     assert first_checkin_times == {}
 
+    mark_triggers_output_delivered([second_trigger], DUE_OUTPUT_WRITE_TO_MD)
+
     second_completed_habits, second_checkin_times = (
         get_completed_habits_after_ready_triggers(
-            [{"habit": habit, "trigger": schedule["triggers"]["habit-1"][1]}],
+            [second_trigger],
             schedule,
         )
     )
