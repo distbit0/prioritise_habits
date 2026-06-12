@@ -1,7 +1,7 @@
 # Decision Log
 
 ## 2026-02-18
-- Enforced a global notes-append throttle for `home.md`: append at most one new habit line every 3 hours, tracked via `.last_notes_append`.
+- Enforced a global notes-append throttle for `inbox-index.md`: append at most one new habit line every 3 hours, tracked via `.last_notes_append`.
 - Stopped rewriting/removing existing note lines during append; now only appends genuinely new habit lines to avoid batch inserts.
 - Added persistent queueing in `.pending_notes_habits` so all eligible habits are eventually appended one-by-one every 3 hours instead of dropping extras.
 

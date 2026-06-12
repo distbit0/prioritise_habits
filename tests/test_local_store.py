@@ -548,7 +548,7 @@ def test_delivered_output_is_not_routed_again_while_tts_waits():
 
 
 def test_deleted_markdown_line_is_not_reappended_after_delivery(tmp_path):
-    notes_path = tmp_path / "home.md"
+    notes_path = tmp_path / "inbox-index.md"
     ready_trigger = {
         "habit": {
             "id": "habit-1",

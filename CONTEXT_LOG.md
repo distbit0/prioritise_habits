@@ -10,7 +10,7 @@
 
 # Due Habit Outputs
 
-- `dueOutputs` controls delivery channels independently from recurrence: `writeToMd` appends to `~/notes/home.md`, while `desktopNotification` sends a persistent `notify-send` notification.
+- `dueOutputs` controls delivery channels independently from recurrence: `writeToMd` appends to `~/notes/inbox-index.md`, while `desktopNotification` sends a persistent `notify-send` notification.
 - `textToSpeech` speaks habit prompts through cached ElevenLabs MP3s. It intentionally waits for a Bluetooth default audio sink before generating or playing audio, so prompts are not spoken through the laptop speakers.
 - The cron entry runs this repo every minute. A repo-local run lock is required because cached MP3 playback is sequential and can last longer than one minute.
 - TTS needs the habit cron entry to source `/home/pimania/dev/guiFromCron/crongui.sh` before running, otherwise cron lacks `XDG_RUNTIME_DIR`/DBus and `wpctl inspect @DEFAULT_AUDIO_SINK@` cannot reach PipeWire. The cron command also needs `uv run --env-file .env` so ElevenLabs cache misses can use the project-specific API key.
@@ -19,6 +19,6 @@
 
 ## Notes filename slug migration
 
-- The notes vault now uses hyphen-slug filenames while keeping readable wikilinks. Direct append targets must use the slugged path, e.g. `~/notes/home.md`.
+- The notes vault now uses hyphen-slug filenames while keeping readable wikilinks. Direct append targets must use the slugged path, e.g. `~/notes/inbox-index.md`.
 - Markdown output targets now reject filenames with whitespace before writing, so stale config cannot recreate old spaced note files.
 - The daily trigger schedule is shared across output channels and stored in `.habit_trigger_schedule`; completion/check-in is still based on all daily triggers firing, not on a specific output channel.
