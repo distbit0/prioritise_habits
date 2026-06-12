@@ -6,12 +6,14 @@ import pytest
 from src.main import (
     DUE_OUTPUT_TEXT_TO_SPEECH,
     DUE_OUTPUT_WRITE_TO_MD,
+    PROJECT_ROOT,
     apply_checkin_payload,
     acquire_run_lock,
     append_ready_habit_triggers,
     create_persistent_desktop_notifications,
-    get_habit_due_outputs,
     get_completed_habits_after_ready_triggers,
+    get_habit_audio_file_path,
+    get_habit_due_outputs,
     get_or_create_text_to_speech_audio,
     get_ready_habit_triggers,
     get_ready_triggers_for_due_output,
@@ -470,6 +472,54 @@ def test_text_to_speech_audio_is_cached(tmp_path, monkeypatch):
             "hasApiKey": True,
         }
     ]
+
+
+def test_custom_habit_audio_file_plays_without_generating_tts(monkeypatch):
+    audio_file = "audio/twitter_2043018085700157500_audio.mp3"
+    custom_audio_path = PROJECT_ROOT / audio_file
+    assert custom_audio_path.is_file()
+
+    ready_triggers = [
+        {
+            "habit": {
+                "id": "twitter-2043018085700157500-audio",
+                "name": "twitter 2043018085700157500 audio",
+                "audioFile": audio_file,
+                "dueOutputs": {"textToSpeech": True},
+            },
+            "trigger": {"time": "2026-06-13T06:30:00+07:00"},
+        }
+    ]
+    played_paths = []
+
+    def fail_if_tts_is_requested(config, habit_text):
+        raise AssertionError("custom audio habit should not request generated TTS")
+
+    monkeypatch.setattr("src.main.is_default_audio_output_bluetooth", lambda: True)
+    monkeypatch.setattr(
+        "src.main.get_or_create_text_to_speech_audio", fail_if_tts_is_requested
+    )
+    monkeypatch.setattr(
+        "src.main.play_audio_file", lambda audio_path: played_paths.append(audio_path)
+    )
+
+    spoken_triggers = speak_ready_habit_triggers({}, ready_triggers)
+
+    assert [item["habit"]["id"] for item in spoken_triggers] == [
+        "twitter-2043018085700157500-audio"
+    ]
+    assert played_paths == [custom_audio_path.resolve()]
+
+
+def test_habit_audio_file_rejects_non_mp3_path():
+    with pytest.raises(ValueError, match="must point to an .mp3 file"):
+        get_habit_audio_file_path(
+            {
+                "id": "twitter-2043018085700157500-audio",
+                "name": "twitter 2043018085700157500 audio",
+                "audioFile": "audio/twitter_2043018085700157500_audio.wav",
+            }
+        )
 
 
 def test_text_to_speech_speaks_sequentially_and_stops_without_bluetooth(

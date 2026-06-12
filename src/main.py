@@ -26,6 +26,7 @@ TRIGGER_END = time(12, 0)
 DUE_OUTPUT_WRITE_TO_MD = "writeToMd"
 DUE_OUTPUT_DESKTOP_NOTIFICATION = "desktopNotification"
 DUE_OUTPUT_TEXT_TO_SPEECH = "textToSpeech"
+HABIT_AUDIO_FILE_FIELD = "audioFile"
 ELEVENLABS_API_KEY_ENV = "ELEVENLABS_API_KEY"
 DEFAULT_DUE_OUTPUTS = {
     DUE_OUTPUT_WRITE_TO_MD: True,
@@ -50,6 +51,7 @@ ACTIVE_HABIT_FIELD_ORDER = (
     "unit",
     "dailyTriggerCount",
     "dueOutputs",
+    "audioFile",
     "sortOrder",
     "status",
     "archivedTime",
@@ -173,6 +175,7 @@ def validate_habits(habits, description):
         if "name" not in habit:
             raise ValueError(f"Each {description} habit must include a 'name'")
         get_habit_due_outputs(habit)
+        get_habit_audio_file_path(habit)
 
 
 def validate_unique_habit_ids(habits):
@@ -572,6 +575,28 @@ def get_habit_due_outputs(habit):
     return outputs
 
 
+def get_habit_audio_file_path(habit):
+    audio_file = habit.get(HABIT_AUDIO_FILE_FIELD)
+    if audio_file is None:
+        return None
+
+    if not isinstance(audio_file, str) or not audio_file.strip():
+        raise ValueError(
+            f"Habit '{habit.get('name')}' {HABIT_AUDIO_FILE_FIELD} "
+            "must be a non-empty string"
+        )
+
+    audio_path = pathlib.Path(audio_file).expanduser()
+    if not audio_path.is_absolute():
+        audio_path = (PROJECT_ROOT / audio_path).resolve()
+    if audio_path.suffix.lower() != ".mp3":
+        raise ValueError(
+            f"Habit '{habit.get('name')}' {HABIT_AUDIO_FILE_FIELD} "
+            "must point to an .mp3 file"
+        )
+    return audio_path
+
+
 def is_trigger_delivered(habit, trigger):
     delivered_outputs = trigger.get("deliveredOutputs", {})
     return all(
@@ -955,6 +980,21 @@ def get_or_create_text_to_speech_audio(text_to_speech_config, habit_text):
     return audio_path
 
 
+def get_habit_audio_path(text_to_speech_config, habit):
+    custom_audio_path = get_habit_audio_file_path(habit)
+    if custom_audio_path is not None:
+        if not custom_audio_path.is_file():
+            raise RuntimeError(
+                f"Custom habit audio file does not exist: {custom_audio_path}"
+            )
+        return custom_audio_path
+
+    habit_text = get_spoken_habit_text(habit)
+    if not habit_text:
+        return None
+    return get_or_create_text_to_speech_audio(text_to_speech_config, habit_text)
+
+
 def play_audio_file(audio_path):
     subprocess.run(
         [
@@ -973,26 +1013,23 @@ def play_audio_file(audio_path):
 def speak_ready_habit_triggers(text_to_speech_config, ready_triggers):
     spoken_triggers = []
     for item in ready_triggers:
-        habit_text = get_spoken_habit_text(item["habit"])
-        if not habit_text:
-            logger.warning("Skipping TTS for habit with empty name")
-            continue
         if not is_default_audio_output_bluetooth():
             logger.warning(
                 "Skipping TTS because the default audio output is not a Bluetooth sink"
             )
             break
         try:
-            audio_path = get_or_create_text_to_speech_audio(
-                text_to_speech_config, habit_text
-            )
+            audio_path = get_habit_audio_path(text_to_speech_config, item["habit"])
+            if audio_path is None:
+                logger.warning("Skipping TTS for habit with empty name")
+                continue
             if not is_default_audio_output_bluetooth():
                 logger.warning(
                     "Skipping TTS playback because the default audio output changed"
                 )
                 break
             play_audio_file(audio_path)
-        except (RuntimeError, subprocess.CalledProcessError) as error:
+        except (RuntimeError, ValueError, subprocess.CalledProcessError) as error:
             logger.error(f"Text-to-speech output failed: {error}")
             break
         spoken_triggers.append(item)

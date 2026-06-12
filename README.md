@@ -12,7 +12,7 @@ This script prioritizes your due habits from a local JSON file. It does not call
 - Records today's completion in the local `checkins` store.
 - Samples each due habit trigger time between 06:00 and 12:00 local time.
 - Writes ready habit names to enabled due outputs once their sampled trigger time has passed.
-- Speaks ready habit names from cached ElevenLabs MP3s when the default audio output is Bluetooth.
+- Speaks ready habit names from cached ElevenLabs MP3s, or plays a configured habit MP3 file, when the default audio output is Bluetooth.
 
 ## Configuration
 
@@ -62,6 +62,7 @@ discard TickTick-derived metadata:
       "desktopNotification": false,
       "textToSpeech": true
     },
+    "audioFile": "audio/read.mp3",
     "archivedTime": null,
     "sortOrder": 1
   }
@@ -110,6 +111,7 @@ Notes:
 - `dailyTriggerCount` is optional and defaults to `1`. Use `2` for a habit that should trigger twice on each due day.
 - `dueOutputs` is optional and defaults to `writeToMd` and `textToSpeech` enabled.
 - Set `writeToMd`, `desktopNotification`, and `textToSpeech` independently.
+- `audioFile` is optional. When present with `textToSpeech` enabled, it must point to an `.mp3` file and is played instead of calling ElevenLabs. Relative paths are resolved from the repo root.
 
 ## Trigger Scheduling
 
@@ -118,7 +120,8 @@ For each due habit trigger, the script samples a local time from 06:00 through 1
 Only triggers whose sampled time has passed are written to their enabled outputs.
 Desktop notifications are created with `notify-send` using critical urgency and no expiry.
 Text-to-speech uses cached ElevenLabs MP3 files and plays them sequentially with `ffplay`.
-TTS only runs when `wpctl inspect @DEFAULT_AUDIO_SINK@` shows a Bluetooth sink.
+Habits can set `audioFile` to play a custom MP3 through the same gated audio channel instead of generating speech.
+Audio only runs when `wpctl inspect @DEFAULT_AUDIO_SINK@` shows a Bluetooth sink.
 If the default output is not Bluetooth, the trigger is left pending for a later run.
 
 Run the script repeatedly during that window, for example from cron or another scheduler, if you want habits to appear throughout the morning instead of all at once.

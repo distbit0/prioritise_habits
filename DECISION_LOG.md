@@ -14,3 +14,6 @@
 - Added `dueOutputs.textToSpeech`, backed by ElevenLabs MP3 generation and a local `.tts_cache/` so repeated habit prompts do not spend API credits.
 - Text-to-speech is a gating output: if a trigger has TTS enabled but the default audio sink is not Bluetooth, the trigger stays pending and is retried by a later cron run.
 - Added a process lock for the every-minute cron job so long sequential audio playback cannot overlap with the next invocation.
+
+## 2026-06-13
+- Added habit-level `audioFile` support for custom MP3 playback through the existing `textToSpeech` delivery channel. Custom audio does not fall back to generated TTS if the file is missing; the trigger remains pending until the path is fixed.

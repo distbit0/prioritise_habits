@@ -12,6 +12,7 @@
 
 - `dueOutputs` controls delivery channels independently from recurrence: `writeToMd` appends to `~/notes/inbox-index.md`, while `desktopNotification` sends a persistent `notify-send` notification.
 - `textToSpeech` speaks habit prompts through cached ElevenLabs MP3s. It intentionally waits for a Bluetooth default audio sink before generating or playing audio, so prompts are not spoken through the laptop speakers.
+- A habit-level `audioFile` path reuses the `textToSpeech` delivery channel but plays the specified project-relative or absolute `.mp3` instead of calling ElevenLabs. Missing custom audio files are explicit playback failures and leave the trigger pending; there is no generated-speech fallback for a habit with `audioFile`.
 - The cron entry runs this repo every minute. A repo-local run lock is required because cached MP3 playback is sequential and can last longer than one minute.
 - TTS needs the habit cron entry to source `/home/pimania/dev/guiFromCron/crongui.sh` before running, otherwise cron lacks `XDG_RUNTIME_DIR`/DBus and `wpctl inspect @DEFAULT_AUDIO_SINK@` cannot reach PipeWire. The cron command also needs `uv run --env-file .env` so ElevenLabs cache misses can use the project-specific API key.
 - `.habit_trigger_schedule` tracks delivery per output channel in `deliveredOutputs`, not only whole-trigger completion. This prevents Markdown/notification repeats while TTS is still pending for Bluetooth audio; for legacy ready schedule entries, non-TTS outputs are treated as already delivered.
