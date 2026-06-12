@@ -3,9 +3,7 @@
     "id": "66dacd5fdce64115dd651851",
     "name": "1. save `bitwarden` > keepas, scrshot droid apps",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=30",
-    "reminders": [
-      "06:00"
-    ],
+    "reminders": ["06:00"],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -37,9 +35,7 @@
     "id": "66dacdc8dce64115dd651a85",
     "name": "1. Call Noni ",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=19",
-    "reminders": [
-      "09:00"
-    ],
+    "reminders": ["09:00"],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -64,18 +60,14 @@
     "sectionId": "-1",
     "targetDays": 0,
     "completedCycles": 0,
-    "exDates": [
-      "20250124"
-    ],
+    "exDates": ["20250124"],
     "style": 1
   },
   {
     "id": "66dad169dce64115dd654e01",
-    "name": "5. fleshout & pub 1 note w/ codex [[writing-index]] [[infofi-index]]",
+    "name": "1. fleshout & pub 1 note w/ codex [[writing-index]] [[infofi-index]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=3",
-    "reminders": [
-      "06:00"
-    ],
+    "reminders": ["06:00"],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -85,7 +77,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 5,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -105,7 +97,7 @@
   },
   {
     "id": "69592304aceb8119e1ced0af",
-    "name": "6. reach out to someone in [[people-to-call]]",
+    "name": "2. reach out to someone in [[people-to-call]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
     "reminders": [],
     "targetStartDate": 20260103,
@@ -117,7 +109,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 6,
+    "sortOrder": 2,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -137,7 +129,7 @@
   },
   {
     "id": "7048cbd2aceb8119e1cf1001",
-    "name": "2. alternate btwn MATERIAL progress on internal and external task. use multiple agent threads",
+    "name": "focus on external tasks! use multiple agent threads, so I do not waste time waiting",
     "repeatRule": "RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=SU,MO,TU,WE,TH,FR,SA",
     "reminders": [],
     "targetStartDate": 20260410,
@@ -150,7 +142,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 2,
+    "sortOrder": 3,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -203,7 +195,7 @@
   },
   {
     "id": "journal-emotions-daily",
-    "name": "4. journal to understand my feelings and detach from emotions",
+    "name": "6. journal to understand my feelings and detach from emotions",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260607,
@@ -216,7 +208,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 4,
+    "sortOrder": 6,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -236,7 +228,7 @@
   },
   {
     "id": "post-tweet-from-tweet-ideas-accepted-daily",
-    "name": "3. post tweet from [[tweet-ideas-accepted]]",
+    "name": "5. post tweet from [[tweet-ideas-accepted]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260611,
@@ -249,7 +241,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 3,
+    "sortOrder": 5,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -269,7 +261,7 @@
   },
   {
     "id": "journal-feelings-and-what-went-wrong-every-second-day",
-    "name": "1. journal about how i feel and what went wrong",
+    "name": "4. journal about how i feel and what went wrong",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
     "reminders": [],
     "targetStartDate": 20260611,
@@ -282,7 +274,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 1,
+    "sortOrder": 4,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -302,7 +294,7 @@
   },
   {
     "id": "dating-action-boldness",
-    "name": "1. Condition yourself to take action even if you feel unready; boldness solves almost every social and dating problem.",
+    "name": "5. Condition yourself to take action even if you feel unready; boldness solves almost every social and dating problem.",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=20",
     "reminders": [],
     "targetStartDate": 20260612,
@@ -315,7 +307,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 1,
+    "sortOrder": 5,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -335,7 +327,7 @@
   },
   {
     "id": "dating-walkaway-npc-frame",
-    "name": "Act as if you are completely fine walking away from her; do not care what other people think view them as NPCs.",
+    "name": "1. Act as if you are completely fine walking away from her; do not care what other people think view them as NPCs.",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=20",
     "reminders": [],
     "targetStartDate": 20260613,
@@ -348,7 +340,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 11,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
