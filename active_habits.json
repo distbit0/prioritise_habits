@@ -195,7 +195,7 @@
   },
   {
     "id": "journal-emotions-daily",
-    "name": "2. journal to understand feelings, what went wrong, and detach",
+    "name": "2. journal to understand feelings, what went wrong, and detach [[journal-alexs]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260607,
