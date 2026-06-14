@@ -10921,6 +10921,16 @@
         "checkinTime": "2026-06-12T03:21:06.000+0000",
         "opTime": "2026-06-12T03:21:06.000+0000",
         "id": "reply-to-unread-msg-20260612"
+      },
+      {
+        "habitId": "reply-to-unread-msg",
+        "checkinStamp": 20260613,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-13T01:20:25.000+0000",
+        "opTime": "2026-06-13T01:20:25.000+0000",
+        "id": "reply-to-unread-msg-20260613"
       }
     ],
     "journal-emotions-daily": [
@@ -10983,6 +10993,16 @@
         "checkinTime": "2026-06-11T23:13:29.000+0000",
         "opTime": "2026-06-11T23:13:29.000+0000",
         "id": "journal-emotions-daily-20260612"
+      },
+      {
+        "habitId": "journal-emotions-daily",
+        "checkinStamp": 20260613,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-13T00:41:21.000+0000",
+        "opTime": "2026-06-13T00:41:21.000+0000",
+        "id": "journal-emotions-daily-20260613"
       }
     ],
     "post-tweet-from-tweet-ideas-accepted-daily": [
@@ -11005,6 +11025,16 @@
         "checkinTime": "2026-06-12T00:41:10.000+0000",
         "opTime": "2026-06-12T00:41:10.000+0000",
         "id": "post-tweet-from-tweet-ideas-accepted-daily-20260612"
+      },
+      {
+        "habitId": "post-tweet-from-tweet-ideas-accepted-daily",
+        "checkinStamp": 20260613,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-13T00:07:43.000+0000",
+        "opTime": "2026-06-13T00:07:43.000+0000",
+        "id": "post-tweet-from-tweet-ideas-accepted-daily-20260613"
       }
     ],
     "dating-action-boldness": [
@@ -11017,6 +11047,42 @@
         "checkinTime": "2026-06-12T04:00:18.000+0000",
         "opTime": "2026-06-12T04:00:18.000+0000",
         "id": "dating-action-boldness-20260612"
+      }
+    ],
+    "dating-walkaway-npc-frame": [
+      {
+        "habitId": "dating-walkaway-npc-frame",
+        "checkinStamp": 20260613,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-12T23:34:44.000+0000",
+        "opTime": "2026-06-12T23:34:44.000+0000",
+        "id": "dating-walkaway-npc-frame-20260613"
+      }
+    ],
+    "twitter-2043018085700157500-audio": [
+      {
+        "habitId": "twitter-2043018085700157500-audio",
+        "checkinStamp": 20260613,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-13T01:57:55.000+0000",
+        "opTime": "2026-06-13T01:57:55.000+0000",
+        "id": "twitter-2043018085700157500-audio-20260613"
+      }
+    ],
+    "dating-busy-no-justifying": [
+      {
+        "habitId": "dating-busy-no-justifying",
+        "checkinStamp": 20260614,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-13T23:20:25.000+0000",
+        "opTime": "2026-06-13T23:20:25.000+0000",
+        "id": "dating-busy-no-justifying-20260614"
       }
     ]
   }

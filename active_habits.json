@@ -3,7 +3,9 @@
     "id": "66dacd5fdce64115dd651851",
     "name": "1. save `bitwarden` > keepas, scrshot droid apps",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=30",
-    "reminders": ["06:00"],
+    "reminders": [
+      "06:00"
+    ],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -35,7 +37,9 @@
     "id": "66dacdc8dce64115dd651a85",
     "name": "1. Call Noni ",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=19",
-    "reminders": ["09:00"],
+    "reminders": [
+      "09:00"
+    ],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -60,14 +64,18 @@
     "sectionId": "-1",
     "targetDays": 0,
     "completedCycles": 0,
-    "exDates": ["20250124"],
+    "exDates": [
+      "20250124"
+    ],
     "style": 1
   },
   {
     "id": "66dad169dce64115dd654e01",
     "name": "1. fleshout & pub 1 note w/ codex [[writing-index]] [[infofi-index]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=3",
-    "reminders": ["06:00"],
+    "reminders": [
+      "06:00"
+    ],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -97,7 +105,7 @@
   },
   {
     "id": "69592304aceb8119e1ced0af",
-    "name": "2. reach out to someone in [[people-to-call]]",
+    "name": "4. reach out to someone in [[people-to-call]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
     "reminders": [],
     "targetStartDate": 20260103,
@@ -109,7 +117,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 2,
+    "sortOrder": 4,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -129,7 +137,7 @@
   },
   {
     "id": "7048cbd2aceb8119e1cf1001",
-    "name": "focus on external tasks! use multiple agent threads, so I do not waste time waiting",
+    "name": "1. focus on external tasks! use multiple agent threads, so I do not waste time waiting",
     "repeatRule": "RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=SU,MO,TU,WE,TH,FR,SA",
     "reminders": [],
     "targetStartDate": 20260410,
@@ -142,7 +150,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 3,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -162,7 +170,7 @@
   },
   {
     "id": "reply-to-unread-msg",
-    "name": "7. reply to unread msg",
+    "name": "5. reply to unread msg",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260410,
@@ -175,7 +183,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 7,
+    "sortOrder": 5,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -195,7 +203,7 @@
   },
   {
     "id": "journal-emotions-daily",
-    "name": "2. journal to understand feelings, what went wrong, and detach [[journal-alexs]]",
+    "name": "3. journal to understand feelings, what went wrong, and detach [[journal-alexs]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260607,
@@ -208,7 +216,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 6,
+    "sortOrder": 3,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -228,7 +236,7 @@
   },
   {
     "id": "post-tweet-from-tweet-ideas-accepted-daily",
-    "name": "5. post tweet from [[tweet-ideas-accepted]]",
+    "name": "2. post tweet from [[tweet-ideas-accepted]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260611,
@@ -241,7 +249,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 5,
+    "sortOrder": 2,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -327,7 +335,7 @@
   },
   {
     "id": "dating-busy-no-justifying",
-    "name": "Be physically unavailable by staying busy with your own life; never justify or explain yourself to a woman.",
+    "name": "1. Be physically unavailable by staying busy with your own life; never justify or explain yourself to a woman.",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=20",
     "reminders": [],
     "targetStartDate": 20260614,
@@ -340,7 +348,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 12,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -921,7 +929,7 @@
   },
   {
     "id": "twitter-2043018085700157500-audio",
-    "name": "2. twitter 2043018085700157500 audio",
+    "name": "4. twitter 2043018085700157500 audio",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
     "reminders": [],
     "targetStartDate": 20260613,
@@ -935,7 +943,7 @@
       "textToSpeech": true
     },
     "audioFile": "audio/twitter_2043018085700157500_audio.mp3",
-    "sortOrder": 2,
+    "sortOrder": 4,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
