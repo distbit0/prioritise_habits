@@ -41,6 +41,7 @@ DEFAULT_TEXT_TO_SPEECH_CONFIG = {
     "cacheDir": "./.tts_cache",
 }
 AUDIO_PLAYBACK_LEAD_IN_MILLISECONDS = 750
+BLUETOOTH_AUDIO_TRANSPORT_BUSY_STATES = {"active", "broadcasting", "pending"}
 ACTIVE_HABIT_FIELD_ORDER = (
     "id",
     "name",
@@ -890,6 +891,19 @@ def is_bluetooth_audio_sink_metadata(wpctl_output):
     )
 
 
+def get_bluetooth_address_from_audio_sink_metadata(wpctl_output):
+    address_match = re.search(r'api\.bluez5\.address = "([^"]+)"', wpctl_output)
+    if address_match:
+        return address_match.group(1).upper()
+
+    node_name_match = re.search(
+        r'node\.name = "bluez_output\.([0-9A-Fa-f_]{17})\.', wpctl_output
+    )
+    if node_name_match:
+        return node_name_match.group(1).replace("_", ":").upper()
+    return None
+
+
 def is_default_audio_output_bluetooth():
     try:
         result = subprocess.run(
@@ -902,6 +916,111 @@ def is_default_audio_output_bluetooth():
         logger.warning(f"Cannot inspect default audio sink for TTS: {error}")
         return False
     return is_bluetooth_audio_sink_metadata(result.stdout)
+
+
+def get_bluez_media_transport_paths(bluetooth_address):
+    device_path = f"/org/bluez/hci\\d+/dev_{bluetooth_address.replace(':', '_')}"
+    transport_path_pattern = rf"({device_path}(?:/[^\s]+)*/fd\d+)"
+    try:
+        result = subprocess.run(
+            ["busctl", "tree", "--list", "org.bluez"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError) as error:
+        logger.warning(f"Cannot inspect BlueZ object tree for TTS: {error}")
+        return None
+
+    transport_paths = sorted(set(re.findall(transport_path_pattern, result.stdout)))
+    if not transport_paths:
+        logger.warning(
+            "Cannot find BlueZ media transport for default Bluetooth audio sink"
+        )
+        return None
+    return transport_paths
+
+
+def parse_busctl_string_property(busctl_output):
+    value_match = re.fullmatch(r's\s+"([^"]+)"', busctl_output.strip())
+    if value_match:
+        return value_match.group(1)
+    return None
+
+
+def get_bluez_media_transport_states(bluetooth_address):
+    transport_paths = get_bluez_media_transport_paths(bluetooth_address)
+    if transport_paths is None:
+        return None
+
+    transport_states = []
+    for transport_path in transport_paths:
+        try:
+            result = subprocess.run(
+                [
+                    "busctl",
+                    "get-property",
+                    "org.bluez",
+                    transport_path,
+                    "org.bluez.MediaTransport1",
+                    "State",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except (FileNotFoundError, subprocess.CalledProcessError) as error:
+            logger.warning(
+                f"Cannot inspect BlueZ media transport state for TTS: {error}"
+            )
+            return None
+
+        transport_state = parse_busctl_string_property(result.stdout)
+        if transport_state is None:
+            logger.warning(
+                "Cannot parse BlueZ media transport state for TTS: "
+                f"{result.stdout.strip()}"
+            )
+            return None
+        transport_states.append(transport_state)
+    return transport_states
+
+
+def is_default_bluetooth_audio_transport_busy():
+    try:
+        result = subprocess.run(
+            ["wpctl", "inspect", "@DEFAULT_AUDIO_SINK@"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError) as error:
+        logger.warning(f"Cannot inspect default audio sink transport for TTS: {error}")
+        return True
+
+    bluetooth_address = get_bluetooth_address_from_audio_sink_metadata(result.stdout)
+    if bluetooth_address is None:
+        logger.warning("Cannot find Bluetooth address for default audio sink")
+        return True
+
+    transport_states = get_bluez_media_transport_states(bluetooth_address)
+    if transport_states is None:
+        return True
+
+    busy_states = sorted(
+        {
+            transport_state
+            for transport_state in transport_states
+            if transport_state in BLUETOOTH_AUDIO_TRANSPORT_BUSY_STATES
+        }
+    )
+    if busy_states:
+        logger.warning(
+            "Skipping TTS because the default Bluetooth audio transport "
+            f"is already streaming: {', '.join(busy_states)}"
+        )
+        return True
+    return False
 
 
 def get_text_to_speech_audio_path(text_to_speech_config, habit_text):
@@ -1015,11 +1134,17 @@ def play_audio_file(audio_path):
 
 def speak_ready_habit_triggers(text_to_speech_config, ready_triggers):
     spoken_triggers = []
+    has_started_tts_playback = False
     for item in ready_triggers:
         if not is_default_audio_output_bluetooth():
             logger.warning(
                 "Skipping TTS because the default audio output is not a Bluetooth sink"
             )
+            break
+        if (
+            not has_started_tts_playback
+            and is_default_bluetooth_audio_transport_busy()
+        ):
             break
         try:
             audio_path = get_habit_audio_path(text_to_speech_config, item["habit"])
@@ -1031,10 +1156,16 @@ def speak_ready_habit_triggers(text_to_speech_config, ready_triggers):
                     "Skipping TTS playback because the default audio output changed"
                 )
                 break
+            if (
+                not has_started_tts_playback
+                and is_default_bluetooth_audio_transport_busy()
+            ):
+                break
             play_audio_file(audio_path)
         except (RuntimeError, ValueError, subprocess.CalledProcessError) as error:
             logger.error(f"Text-to-speech output failed: {error}")
             break
+        has_started_tts_playback = True
         spoken_triggers.append(item)
 
     if spoken_triggers:

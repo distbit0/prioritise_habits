@@ -1,4 +1,5 @@
 import json
+import subprocess
 from datetime import datetime, timezone
 
 import pytest
@@ -12,6 +13,8 @@ from src.main import (
     append_ready_habit_triggers,
     create_persistent_desktop_notifications,
     get_completed_habits_after_ready_triggers,
+    get_bluetooth_address_from_audio_sink_metadata,
+    get_bluez_media_transport_paths,
     get_habit_audio_file_path,
     get_habit_due_outputs,
     get_or_create_text_to_speech_audio,
@@ -434,6 +437,83 @@ id 90, type PipeWire:Interface:Node
     assert not is_bluetooth_audio_sink_metadata(internal_speaker_output)
 
 
+def test_bluetooth_sink_address_is_read_from_wpctl_metadata():
+    bluetooth_sink_output = """
+id 196, type PipeWire:Interface:Node
+    api.bluez5.address = "90:BF:D9:5D:41:D0"
+    api.bluez5.codec = "sbc_xq"
+    api.bluez5.profile = "a2dp-sink"
+    api.bluez5.transport = ""
+    card.profile.device = "1"
+  * client.id = "48"
+    clock.quantum-limit = "8192"
+    device.api = "bluez5"
+  * device.id = "189"
+    device.routes = "1"
+  * factory.id = "12"
+    factory.name = "api.bluez5.a2dp.sink"
+    library.name = "audioconvert/libspa-audioconvert"
+  * media.class = "Audio/Sink"
+    media.name = "soundcore Space Q45"
+  * node.description = "soundcore Space Q45"
+    node.driver = "true"
+    node.loop.name = "data-loop.0"
+  * node.name = "bluez_output.90_BF_D9_5D_41_D0.1"
+    node.pause-on-idle = "false"
+  * object.serial = "211"
+    port.group = "stream.0"
+  * priority.driver = "1010"
+  * priority.session = "1010"
+    spa.object.id = "1"
+"""
+    bluetooth_sink_output_without_address = """
+id 196, type PipeWire:Interface:Node
+  * node.name = "bluez_output.90_BF_D9_5D_41_D0.1"
+"""
+
+    assert (
+        get_bluetooth_address_from_audio_sink_metadata(bluetooth_sink_output)
+        == "90:BF:D9:5D:41:D0"
+    )
+    assert (
+        get_bluetooth_address_from_audio_sink_metadata(
+            bluetooth_sink_output_without_address
+        )
+        == "90:BF:D9:5D:41:D0"
+    )
+
+
+def test_bluez_media_transport_paths_are_matched_by_device_address(monkeypatch):
+    busctl_tree_output = """
+/
+/org
+/org/bluez
+/org/bluez/hci0
+/org/bluez/hci0/dev_07_B9_70_4F_16_66
+/org/bluez/hci0/dev_49_CF_81_B9_FD_9F
+/org/bluez/hci0/dev_50_B2_B8_06_BE_F8
+/org/bluez/hci0/dev_54_F2_9F_9F_AD_A7
+/org/bluez/hci0/dev_54_F2_9F_9F_E1_C2
+/org/bluez/hci0/dev_5D_D6_D9_09_AF_AE
+/org/bluez/hci0/dev_90_BF_D9_5D_41_D0
+/org/bluez/hci0/dev_90_BF_D9_5D_41_D0/sep1
+/org/bluez/hci0/dev_90_BF_D9_5D_41_D0/sep1/fd0
+/org/bluez/hci0/dev_90_BF_D9_5D_41_D0/sep2
+/org/bluez/hci0/dev_90_F2_60_BD_B7_3D
+/org/bluez/hci0/dev_A0_D3_65_04_20_A3
+"""
+
+    def fake_run(command, check, capture_output, text):
+        assert command == ["busctl", "tree", "--list", "org.bluez"]
+        return subprocess.CompletedProcess(command, 0, stdout=busctl_tree_output)
+
+    monkeypatch.setattr("src.main.subprocess.run", fake_run)
+
+    assert get_bluez_media_transport_paths("90:BF:D9:5D:41:D0") == [
+        "/org/bluez/hci0/dev_90_BF_D9_5D_41_D0/sep1/fd0"
+    ]
+
+
 def test_text_to_speech_audio_is_cached(tmp_path, monkeypatch):
     text_to_speech_config = {
         "provider": "elevenlabs",
@@ -528,6 +608,9 @@ def test_custom_habit_audio_file_plays_without_generating_tts(monkeypatch):
 
     monkeypatch.setattr("src.main.is_default_audio_output_bluetooth", lambda: True)
     monkeypatch.setattr(
+        "src.main.is_default_bluetooth_audio_transport_busy", lambda: False
+    )
+    monkeypatch.setattr(
         "src.main.get_or_create_text_to_speech_audio", fail_if_tts_is_requested
     )
     monkeypatch.setattr(
@@ -589,6 +672,9 @@ def test_text_to_speech_speaks_sequentially_and_stops_without_bluetooth(
         "src.main.is_default_audio_output_bluetooth",
         lambda: next(bluetooth_states),
     )
+    monkeypatch.setattr(
+        "src.main.is_default_bluetooth_audio_transport_busy", lambda: False
+    )
     monkeypatch.setattr("src.main.get_or_create_text_to_speech_audio", fake_get_audio)
     monkeypatch.setattr(
         "src.main.play_audio_file", lambda path: played_paths.append(path)
@@ -599,6 +685,32 @@ def test_text_to_speech_speaks_sequentially_and_stops_without_bluetooth(
     assert [item["habit"]["id"] for item in spoken_triggers] == ["habit-1"]
     assert generated_text == ["reply to unread msg"]
     assert [path.name for path in played_paths] == ["0.mp3"]
+
+
+def test_text_to_speech_waits_when_bluetooth_transport_is_busy(monkeypatch):
+    ready_triggers = [
+        {
+            "habit": {
+                "id": "habit-1",
+                "name": "1. reply to unread msg",
+                "dueOutputs": {"textToSpeech": True},
+            },
+            "trigger": {"time": "2026-06-12T06:30:00+07:00"},
+        }
+    ]
+
+    def fail_if_audio_is_requested(config, habit_text):
+        raise AssertionError("busy Bluetooth transport should keep TTS pending")
+
+    monkeypatch.setattr("src.main.is_default_audio_output_bluetooth", lambda: True)
+    monkeypatch.setattr(
+        "src.main.is_default_bluetooth_audio_transport_busy", lambda: True
+    )
+    monkeypatch.setattr(
+        "src.main.get_or_create_text_to_speech_audio", fail_if_audio_is_requested
+    )
+
+    assert speak_ready_habit_triggers({}, ready_triggers) == []
 
 
 def test_delivered_output_is_not_routed_again_while_tts_waits():

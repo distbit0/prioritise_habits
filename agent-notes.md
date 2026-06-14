@@ -18,6 +18,7 @@
 - `.habit_trigger_schedule` tracks delivery per output channel in `deliveredOutputs`, not only whole-trigger completion. This prevents Markdown/notification repeats while TTS is still pending for Bluetooth audio; for legacy ready schedule entries, non-TTS outputs are treated as already delivered.
 - Dating advice prompts are modeled as 20 TTS-enabled habits on a 20-day interval, with exactly one dating habit target-starting per day and two advice items combined into each habit. The local due logic treats unchecked habits as overdue after `targetStartDate`, so the no-overlap cadence assumes the normal scheduled run records each delivered habit as checked.
 - Habit audio playback uses an `ffplay` `adelay=750:all=1` filter to prepend silence inside the same playback stream. This is meant to wake Bluetooth audio before speech starts; a separate warm-up playback process is less reliable because it can open and close a different stream before the real MP3 starts.
+- Before starting a TTS batch, the script treats BlueZ media transport states `pending`, `broadcasting`, and `active` as busy and leaves TTS pending. This only detects streaming visible to the laptop's BlueZ/PipeWire stack; phone-to-headphones multipoint playback may still be invisible.
 
 ## Notes filename slug migration
 

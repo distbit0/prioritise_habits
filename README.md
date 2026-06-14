@@ -122,6 +122,7 @@ Desktop notifications are created with `notify-send` using critical urgency and 
 Text-to-speech uses cached ElevenLabs MP3 files and plays them sequentially with `ffplay`, adding a short silent lead-in so Bluetooth outputs do not clip the first word.
 Habits can set `audioFile` to play a custom MP3 through the same gated audio channel instead of generating speech.
 Audio only runs when `wpctl inspect @DEFAULT_AUDIO_SINK@` shows a Bluetooth sink.
+TTS is also deferred while the default Bluetooth sink's BlueZ media transport is already streaming from this laptop.
 If the default output is not Bluetooth, the trigger is left pending for a later run.
 
 Run the script repeatedly during that window, for example from cron or another scheduler, if you want habits to appear throughout the morning instead of all at once.
