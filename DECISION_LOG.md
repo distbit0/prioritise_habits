@@ -17,3 +17,6 @@
 
 ## 2026-06-13
 - Added habit-level `audioFile` support for custom MP3 playback through the existing `textToSpeech` delivery channel. Custom audio does not fall back to generated TTS if the file is missing; the trigger remains pending until the path is fixed.
+
+## 2026-06-25
+- Added phone audio coordination for TTS batches through the MacroDroid audio toggle trigger. The script pauses phone audio once, waits 10 seconds, plays the queued habit audio sequentially, then waits 10 seconds and sends `state=play` once after the batch attempt finishes.

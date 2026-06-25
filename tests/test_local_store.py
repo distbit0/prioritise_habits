@@ -11,12 +11,14 @@ from src.main import (
     apply_checkin_payload,
     acquire_run_lock,
     append_ready_habit_triggers,
+    build_phone_audio_control_url,
     create_persistent_desktop_notifications,
     get_completed_habits_after_ready_triggers,
     get_bluetooth_address_from_audio_sink_metadata,
     get_bluez_media_transport_paths,
     get_habit_audio_file_path,
     get_habit_due_outputs,
+    get_phone_audio_control_trigger_url,
     get_or_create_text_to_speech_audio,
     get_ready_habit_triggers,
     get_ready_triggers_for_due_output,
@@ -658,7 +660,7 @@ def test_text_to_speech_speaks_sequentially_and_stops_without_bluetooth(
             "trigger": {"time": "2026-06-12T06:31:00+07:00"},
         },
     ]
-    bluetooth_states = iter([True, True, False])
+    bluetooth_states = iter([True, True, True, False])
     generated_text = []
     played_paths = []
 
@@ -685,6 +687,74 @@ def test_text_to_speech_speaks_sequentially_and_stops_without_bluetooth(
     assert [item["habit"]["id"] for item in spoken_triggers] == ["habit-1"]
     assert generated_text == ["reply to unread msg"]
     assert [path.name for path in played_paths] == ["0.mp3"]
+
+
+def test_phone_audio_control_url_replaces_state_from_config():
+    config = json.loads((PROJECT_ROOT / "config.json").read_text())
+    trigger_url = get_phone_audio_control_trigger_url(config)
+
+    pause_url = build_phone_audio_control_url(trigger_url, "pause")
+    play_url = build_phone_audio_control_url(pause_url, "play")
+
+    assert pause_url.endswith("/audio_toggle?state=pause")
+    assert play_url.endswith("/audio_toggle?state=play")
+
+
+def test_phone_audio_is_paused_around_queued_tts_batch(tmp_path, monkeypatch):
+    config = json.loads((PROJECT_ROOT / "config.json").read_text())
+    trigger_url = get_phone_audio_control_trigger_url(config)
+    active_habits = json.loads((PROJECT_ROOT / "active_habits.json").read_text())
+    queued_habits = [
+        habit
+        for habit in active_habits
+        if get_habit_due_outputs(habit)[DUE_OUTPUT_TEXT_TO_SPEECH]
+    ][:2]
+    assert len(queued_habits) == 2
+
+    ready_triggers = [
+        {"habit": habit, "trigger": {"time": habit["targetStartDate"]}}
+        for habit in queued_habits
+    ]
+    event_log = []
+
+    def fake_get_habit_audio_path(config, habit):
+        return tmp_path / f"{habit['id']}.mp3"
+
+    monkeypatch.setattr("src.main.is_default_audio_output_bluetooth", lambda: True)
+    monkeypatch.setattr(
+        "src.main.is_default_bluetooth_audio_transport_busy", lambda: False
+    )
+    monkeypatch.setattr("src.main.get_habit_audio_path", fake_get_habit_audio_path)
+    monkeypatch.setattr(
+        "src.main.send_phone_audio_control",
+        lambda trigger_url, state: event_log.append(f"phone:{state}"),
+    )
+    monkeypatch.setattr(
+        "src.main.time_module.sleep",
+        lambda seconds: event_log.append(f"sleep:{seconds}"),
+    )
+    monkeypatch.setattr(
+        "src.main.play_audio_file",
+        lambda audio_path: event_log.append(f"play:{audio_path.name}"),
+    )
+
+    spoken_triggers = speak_ready_habit_triggers(
+        {},
+        ready_triggers,
+        trigger_url,
+    )
+
+    assert [item["habit"]["id"] for item in spoken_triggers] == [
+        habit["id"] for habit in queued_habits
+    ]
+    assert event_log == [
+        "phone:pause",
+        "sleep:10",
+        f"play:{queued_habits[0]['id']}.mp3",
+        f"play:{queued_habits[1]['id']}.mp3",
+        "sleep:10",
+        "phone:play",
+    ]
 
 
 def test_text_to_speech_waits_when_bluetooth_transport_is_busy(monkeypatch):

@@ -2,6 +2,7 @@
   "lookBackDays": 21,
   "habitsStoreFile": "./habits_store.json",
   "activeHabitsFile": "./active_habits.json",
+  "phoneAudioControlTriggerUrl": "https://trigger.macrodroid.com/0b4a30ae-6190-4232-bd93-673adf6f9675/audio_toggle",
   "textToSpeech": {
     "provider": "elevenlabs",
     "voiceId": "JBFqnCBsd6RMkjVDRZzb",

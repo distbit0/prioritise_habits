@@ -8,6 +8,7 @@ import random
 import re
 import subprocess
 import sys
+import time as time_module
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -40,6 +41,8 @@ DEFAULT_TEXT_TO_SPEECH_CONFIG = {
     "outputFormat": "mp3_44100_128",
     "cacheDir": "./.tts_cache",
 }
+PHONE_AUDIO_CONTROL_STATES = {"pause", "play"}
+PHONE_AUDIO_CONTROL_DELAY_SECONDS = 10
 AUDIO_PLAYBACK_LEAD_IN_MILLISECONDS = 750
 BLUETOOTH_AUDIO_TRANSPORT_BUSY_STATES = {"active", "broadcasting", "pending"}
 ACTIVE_HABIT_FIELD_ORDER = (
@@ -153,6 +156,19 @@ def get_text_to_speech_config(config):
         cache_dir = (PROJECT_ROOT / cache_dir).resolve()
     text_to_speech_config["cacheDir"] = str(cache_dir)
     return text_to_speech_config
+
+
+def get_phone_audio_control_trigger_url(config):
+    trigger_url = config.get("phoneAudioControlTriggerUrl")
+    if trigger_url is None:
+        return None
+    if not isinstance(trigger_url, str) or not trigger_url.strip():
+        raise ValueError("phoneAudioControlTriggerUrl must be a non-empty string")
+
+    parsed_url = urllib.parse.urlsplit(trigger_url)
+    if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+        raise ValueError("phoneAudioControlTriggerUrl must be an HTTP(S) URL")
+    return trigger_url
 
 
 def load_json_list(json_path, description):
@@ -1132,41 +1148,113 @@ def play_audio_file(audio_path):
     )
 
 
-def speak_ready_habit_triggers(text_to_speech_config, ready_triggers):
-    spoken_triggers = []
-    has_started_tts_playback = False
+def build_phone_audio_control_url(trigger_url, state):
+    if state not in PHONE_AUDIO_CONTROL_STATES:
+        raise ValueError(f"Unsupported phone audio control state: {state}")
+
+    parsed_url = urllib.parse.urlsplit(trigger_url)
+    query_parameters = [
+        (name, value)
+        for name, value in urllib.parse.parse_qsl(
+            parsed_url.query, keep_blank_values=True
+        )
+        if name != "state"
+    ]
+    query_parameters.append(("state", state))
+    return urllib.parse.urlunsplit(
+        parsed_url._replace(query=urllib.parse.urlencode(query_parameters))
+    )
+
+
+def send_phone_audio_control(trigger_url, state):
+    url = build_phone_audio_control_url(trigger_url, state)
+    try:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            response.read()
+    except urllib.error.HTTPError as error:
+        error_body = error.read().decode("utf-8", errors="replace").strip()
+        raise RuntimeError(
+            f"Phone audio {state} trigger failed with HTTP {error.code}: "
+            f"{error_body[:300]}"
+        ) from error
+    except urllib.error.URLError as error:
+        raise RuntimeError(
+            f"Phone audio {state} trigger request failed: {error.reason}"
+        ) from error
+    logger.info(f"Sent phone audio {state} trigger")
+
+
+def can_start_audio_habit_batch():
+    if not is_default_audio_output_bluetooth():
+        logger.warning(
+            "Skipping TTS because the default audio output is not a Bluetooth sink"
+        )
+        return False
+    return not is_default_bluetooth_audio_transport_busy()
+
+
+def speak_ready_habit_triggers(
+    text_to_speech_config, ready_triggers, phone_audio_control_trigger_url=None
+):
+    if not ready_triggers or not can_start_audio_habit_batch():
+        return []
+
+    playback_queue = []
     for item in ready_triggers:
         if not is_default_audio_output_bluetooth():
             logger.warning(
                 "Skipping TTS because the default audio output is not a Bluetooth sink"
             )
             break
-        if (
-            not has_started_tts_playback
-            and is_default_bluetooth_audio_transport_busy()
-        ):
-            break
         try:
             audio_path = get_habit_audio_path(text_to_speech_config, item["habit"])
-            if audio_path is None:
-                logger.warning("Skipping TTS for habit with empty name")
-                continue
-            if not is_default_audio_output_bluetooth():
-                logger.warning(
-                    "Skipping TTS playback because the default audio output changed"
-                )
-                break
-            if (
-                not has_started_tts_playback
-                and is_default_bluetooth_audio_transport_busy()
-            ):
-                break
-            play_audio_file(audio_path)
-        except (RuntimeError, ValueError, subprocess.CalledProcessError) as error:
+        except (RuntimeError, ValueError) as error:
             logger.error(f"Text-to-speech output failed: {error}")
             break
-        has_started_tts_playback = True
-        spoken_triggers.append(item)
+        if audio_path is None:
+            logger.warning("Skipping TTS for habit with empty name")
+            continue
+        if not is_default_audio_output_bluetooth():
+            logger.warning(
+                "Skipping TTS playback because the default audio output changed"
+            )
+            break
+        playback_queue.append((item, audio_path))
+
+    if not playback_queue:
+        return []
+
+    spoken_triggers = []
+    phone_audio_was_paused = False
+    try:
+        if phone_audio_control_trigger_url:
+            send_phone_audio_control(phone_audio_control_trigger_url, "pause")
+            phone_audio_was_paused = True
+            time_module.sleep(PHONE_AUDIO_CONTROL_DELAY_SECONDS)
+
+        if phone_audio_control_trigger_url and not can_start_audio_habit_batch():
+            return []
+
+        for item, audio_path in playback_queue:
+            if (
+                phone_audio_control_trigger_url
+                and not is_default_audio_output_bluetooth()
+            ):
+                logger.warning(
+                    "Skipping TTS because the default audio output is not a Bluetooth sink"
+                )
+                break
+            play_audio_file(audio_path)
+            spoken_triggers.append(item)
+    except (RuntimeError, ValueError, subprocess.CalledProcessError) as error:
+        logger.error(f"Text-to-speech output failed: {error}")
+    finally:
+        if phone_audio_was_paused:
+            time_module.sleep(PHONE_AUDIO_CONTROL_DELAY_SECONDS)
+            try:
+                send_phone_audio_control(phone_audio_control_trigger_url, "play")
+            except RuntimeError as error:
+                logger.error(f"Phone audio resume failed after TTS batch: {error}")
 
     if spoken_triggers:
         logger.info(f"Spoke {len(spoken_triggers)} habit triggers")
@@ -1208,6 +1296,7 @@ def main(test_mode=None):
     try:
         config = load_config()
         text_to_speech_config = get_text_to_speech_config(config)
+        phone_audio_control_trigger_url = get_phone_audio_control_trigger_url(config)
         store_path = get_config_path(config, "habitsStoreFile")
         active_habits_path = get_config_path(config, "activeHabitsFile")
         store = load_habit_store(store_path, active_habits_path)
@@ -1250,7 +1339,9 @@ def main(test_mode=None):
                 HABIT_TRIGGER_SCHEDULE_FILE, habit_trigger_schedule
             )
             spoken_triggers = speak_ready_habit_triggers(
-                text_to_speech_config, text_to_speech_ready_triggers
+                text_to_speech_config,
+                text_to_speech_ready_triggers,
+                phone_audio_control_trigger_url,
             )
             mark_triggers_output_delivered(
                 spoken_triggers, DUE_OUTPUT_TEXT_TO_SPEECH
