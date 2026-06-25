@@ -3807,6 +3807,26 @@
         "checkinTime": "2026-06-20T04:42:46.000+0000",
         "opTime": "2026-06-20T04:42:46.000+0000",
         "id": "69592304aceb8119e1ced0af-20260620"
+      },
+      {
+        "habitId": "69592304aceb8119e1ced0af",
+        "checkinStamp": 20260622,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-22T01:49:52.000+0000",
+        "opTime": "2026-06-22T01:49:52.000+0000",
+        "id": "69592304aceb8119e1ced0af-20260622"
+      },
+      {
+        "habitId": "69592304aceb8119e1ced0af",
+        "checkinStamp": 20260624,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-24T04:37:31.000+0000",
+        "opTime": "2026-06-24T04:37:31.000+0000",
+        "id": "69592304aceb8119e1ced0af-20260624"
       }
     ],
     "679c6c8c5fcb7e10beb82dbd": [],
@@ -10419,6 +10439,46 @@
         "checkinTime": "2026-06-20T23:58:22.000+0000",
         "opTime": "2026-06-20T23:58:22.000+0000",
         "id": "7048cbd2aceb8119e1cf1001-20260621"
+      },
+      {
+        "habitId": "7048cbd2aceb8119e1cf1001",
+        "checkinStamp": 20260622,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-22T04:06:17.000+0000",
+        "opTime": "2026-06-22T04:06:17.000+0000",
+        "id": "7048cbd2aceb8119e1cf1001-20260622"
+      },
+      {
+        "habitId": "7048cbd2aceb8119e1cf1001",
+        "checkinStamp": 20260623,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-23T04:57:38.000+0000",
+        "opTime": "2026-06-23T04:57:38.000+0000",
+        "id": "7048cbd2aceb8119e1cf1001-20260623"
+      },
+      {
+        "habitId": "7048cbd2aceb8119e1cf1001",
+        "checkinStamp": 20260624,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-24T01:30:18.000+0000",
+        "opTime": "2026-06-24T01:30:18.000+0000",
+        "id": "7048cbd2aceb8119e1cf1001-20260624"
+      },
+      {
+        "habitId": "7048cbd2aceb8119e1cf1001",
+        "checkinStamp": 20260625,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-24T23:29:27.000+0000",
+        "opTime": "2026-06-24T23:29:27.000+0000",
+        "id": "7048cbd2aceb8119e1cf1001-20260625"
       }
     ],
     "reply-to-unread-msg": [
@@ -11151,6 +11211,46 @@
         "checkinTime": "2026-06-21T04:50:27.000+0000",
         "opTime": "2026-06-21T04:50:27.000+0000",
         "id": "reply-to-unread-msg-20260621"
+      },
+      {
+        "habitId": "reply-to-unread-msg",
+        "checkinStamp": 20260622,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-22T04:13:40.000+0000",
+        "opTime": "2026-06-22T04:13:40.000+0000",
+        "id": "reply-to-unread-msg-20260622"
+      },
+      {
+        "habitId": "reply-to-unread-msg",
+        "checkinStamp": 20260623,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-23T02:50:11.000+0000",
+        "opTime": "2026-06-23T02:50:11.000+0000",
+        "id": "reply-to-unread-msg-20260623"
+      },
+      {
+        "habitId": "reply-to-unread-msg",
+        "checkinStamp": 20260624,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-24T03:35:04.000+0000",
+        "opTime": "2026-06-24T03:35:04.000+0000",
+        "id": "reply-to-unread-msg-20260624"
+      },
+      {
+        "habitId": "reply-to-unread-msg",
+        "checkinStamp": 20260625,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-25T04:11:02.000+0000",
+        "opTime": "2026-06-25T04:11:02.000+0000",
+        "id": "reply-to-unread-msg-20260625"
       }
     ],
     "journal-emotions-daily": [
@@ -11303,6 +11403,46 @@
         "checkinTime": "2026-06-20T23:59:51.000+0000",
         "opTime": "2026-06-20T23:59:51.000+0000",
         "id": "journal-emotions-daily-20260621"
+      },
+      {
+        "habitId": "journal-emotions-daily",
+        "checkinStamp": 20260622,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-21T23:33:10.000+0000",
+        "opTime": "2026-06-21T23:33:10.000+0000",
+        "id": "journal-emotions-daily-20260622"
+      },
+      {
+        "habitId": "journal-emotions-daily",
+        "checkinStamp": 20260623,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-23T03:33:52.000+0000",
+        "opTime": "2026-06-23T03:33:52.000+0000",
+        "id": "journal-emotions-daily-20260623"
+      },
+      {
+        "habitId": "journal-emotions-daily",
+        "checkinStamp": 20260624,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-24T02:27:21.000+0000",
+        "opTime": "2026-06-24T02:27:21.000+0000",
+        "id": "journal-emotions-daily-20260624"
+      },
+      {
+        "habitId": "journal-emotions-daily",
+        "checkinStamp": 20260625,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-25T00:24:39.000+0000",
+        "opTime": "2026-06-25T00:24:39.000+0000",
+        "id": "journal-emotions-daily-20260625"
       }
     ],
     "post-tweet-from-tweet-ideas-accepted-daily": [
@@ -11415,6 +11555,46 @@
         "checkinTime": "2026-06-21T02:45:50.000+0000",
         "opTime": "2026-06-21T02:45:50.000+0000",
         "id": "post-tweet-from-tweet-ideas-accepted-daily-20260621"
+      },
+      {
+        "habitId": "post-tweet-from-tweet-ideas-accepted-daily",
+        "checkinStamp": 20260622,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-21T23:44:55.000+0000",
+        "opTime": "2026-06-21T23:44:55.000+0000",
+        "id": "post-tweet-from-tweet-ideas-accepted-daily-20260622"
+      },
+      {
+        "habitId": "post-tweet-from-tweet-ideas-accepted-daily",
+        "checkinStamp": 20260623,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-23T00:19:14.000+0000",
+        "opTime": "2026-06-23T00:19:14.000+0000",
+        "id": "post-tweet-from-tweet-ideas-accepted-daily-20260623"
+      },
+      {
+        "habitId": "post-tweet-from-tweet-ideas-accepted-daily",
+        "checkinStamp": 20260624,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-24T04:46:26.000+0000",
+        "opTime": "2026-06-24T04:46:26.000+0000",
+        "id": "post-tweet-from-tweet-ideas-accepted-daily-20260624"
+      },
+      {
+        "habitId": "post-tweet-from-tweet-ideas-accepted-daily",
+        "checkinStamp": 20260625,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-25T02:51:45.000+0000",
+        "opTime": "2026-06-25T02:51:45.000+0000",
+        "id": "post-tweet-from-tweet-ideas-accepted-daily-20260625"
       }
     ],
     "dating-action-boldness": [
@@ -11491,6 +11671,26 @@
         "checkinTime": "2026-06-20T23:06:39.000+0000",
         "opTime": "2026-06-20T23:06:39.000+0000",
         "id": "twitter-2043018085700157500-audio-20260621"
+      },
+      {
+        "habitId": "twitter-2043018085700157500-audio",
+        "checkinStamp": 20260623,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-23T02:03:43.000+0000",
+        "opTime": "2026-06-23T02:03:43.000+0000",
+        "id": "twitter-2043018085700157500-audio-20260623"
+      },
+      {
+        "habitId": "twitter-2043018085700157500-audio",
+        "checkinStamp": 20260625,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-25T00:22:59.000+0000",
+        "opTime": "2026-06-25T00:22:59.000+0000",
+        "id": "twitter-2043018085700157500-audio-20260625"
       }
     ],
     "dating-busy-no-justifying": [
@@ -11587,6 +11787,54 @@
         "checkinTime": "2026-06-21T01:42:48.000+0000",
         "opTime": "2026-06-21T01:42:48.000+0000",
         "id": "dating-disagree-and-tease-20260621"
+      }
+    ],
+    "dating-edge-and-emotional-oscillation": [
+      {
+        "habitId": "dating-edge-and-emotional-oscillation",
+        "checkinStamp": 20260622,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-22T03:46:41.000+0000",
+        "opTime": "2026-06-22T03:46:41.000+0000",
+        "id": "dating-edge-and-emotional-oscillation-20260622"
+      }
+    ],
+    "dating-playful-focus-on-her": [
+      {
+        "habitId": "dating-playful-focus-on-her",
+        "checkinStamp": 20260623,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-23T04:58:15.000+0000",
+        "opTime": "2026-06-23T04:58:15.000+0000",
+        "id": "dating-playful-focus-on-her-20260623"
+      }
+    ],
+    "dating-open-questions-emotions": [
+      {
+        "habitId": "dating-open-questions-emotions",
+        "checkinStamp": 20260624,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-23T23:21:09.000+0000",
+        "opTime": "2026-06-23T23:21:09.000+0000",
+        "id": "dating-open-questions-emotions-20260624"
+      }
+    ],
+    "dating-amplify-emotions-no-advice": [
+      {
+        "habitId": "dating-amplify-emotions-no-advice",
+        "checkinStamp": 20260625,
+        "goal": 1.0,
+        "value": 1.0,
+        "status": 2,
+        "checkinTime": "2026-06-25T01:08:29.000+0000",
+        "opTime": "2026-06-25T01:08:29.000+0000",
+        "id": "dating-amplify-emotions-no-advice-20260625"
       }
     ]
   }

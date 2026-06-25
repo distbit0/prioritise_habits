@@ -3,7 +3,9 @@
     "id": "66dacd5fdce64115dd651851",
     "name": "1. save `bitwarden` > keepas, scrshot droid apps",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=30",
-    "reminders": ["06:00"],
+    "reminders": [
+      "06:00"
+    ],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -35,7 +37,9 @@
     "id": "66dacdc8dce64115dd651a85",
     "name": "1. Call Noni ",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=19",
-    "reminders": ["09:00"],
+    "reminders": [
+      "09:00"
+    ],
     "targetStartDate": 20240906,
     "goal": 1.0,
     "step": 0.0,
@@ -60,7 +64,9 @@
     "sectionId": "-1",
     "targetDays": 0,
     "completedCycles": 0,
-    "exDates": ["20250124"],
+    "exDates": [
+      "20250124"
+    ],
     "style": 1
   },
   {
@@ -163,7 +169,7 @@
   },
   {
     "id": "journal-emotions-daily",
-    "name": "2. journal about recent ideas/reading, feelings, and what went wrong [[journal-alexs]]",
+    "name": "1. journal about recent ideas/reading, feelings, and what went wrong [[journal-alexs]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260607,
@@ -176,7 +182,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 2,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -196,7 +202,7 @@
   },
   {
     "id": "post-tweet-from-tweet-ideas-accepted-daily",
-    "name": "3. post tweet from [[tweet-ideas-accepted]]",
+    "name": "2. post tweet from [[tweet-ideas-accepted]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260611,
@@ -209,7 +215,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 3,
+    "sortOrder": 2,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -559,7 +565,7 @@
   },
   {
     "id": "dating-edge-and-emotional-oscillation",
-    "name": "Have edge by voicing politically incorrect views and darker traits; oscillate between warm and cold to fluctuate her emotions.",
+    "name": "5. Have edge by voicing politically incorrect views and darker traits; oscillate between warm and cold to fluctuate her emotions.",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=20",
     "reminders": [],
     "targetStartDate": 20260622,
@@ -572,7 +578,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 20,
+    "sortOrder": 5,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -592,7 +598,7 @@
   },
   {
     "id": "dating-playful-focus-on-her",
-    "name": "Stay playful and unconcerned with her reaction or outcome; keep focus on her using you instead of talking about yourself.",
+    "name": "1. Stay playful and unconcerned with her reaction or outcome; keep focus on her using you instead of talking about yourself.",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=20",
     "reminders": [],
     "targetStartDate": 20260623,
@@ -605,7 +611,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 21,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -625,7 +631,7 @@
   },
   {
     "id": "dating-open-questions-emotions",
-    "name": "Ask open-ended follow-up questions about what she says; ask how that made her feel to address emotions directly.",
+    "name": "4. Ask open-ended follow-up questions about what she says; ask how that made her feel to address emotions directly.",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=20",
     "reminders": [],
     "targetStartDate": 20260624,
@@ -638,7 +644,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 22,
+    "sortOrder": 4,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -658,7 +664,7 @@
   },
   {
     "id": "dating-amplify-emotions-no-advice",
-    "name": "Amplify and echo the emotions in her stories and answers; have her tell more instead of giving unsolicited advice.",
+    "name": "1. Amplify and echo the emotions in her stories and answers; have her tell more instead of giving unsolicited advice.",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=20",
     "reminders": [],
     "targetStartDate": 20260625,
@@ -671,7 +677,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 23,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -889,7 +895,7 @@
   },
   {
     "id": "twitter-2043018085700157500-audio",
-    "name": "5. twitter 2043018085700157500 audio",
+    "name": "2. twitter 2043018085700157500 audio",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
     "reminders": [],
     "targetStartDate": 20260613,
@@ -903,7 +909,7 @@
       "textToSpeech": true
     },
     "audioFile": "audio/twitter_2043018085700157500_audio.mp3",
-    "sortOrder": 5,
+    "sortOrder": 2,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
