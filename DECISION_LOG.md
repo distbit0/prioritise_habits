@@ -23,3 +23,4 @@
 
 ## 2026-06-27
 - Disabled `reply-to-unread-msg` by removing it from `active_habits.json` and clearing its generated entries from the current daily trigger schedule. Historical check-ins remain in `habits_store.json`.
+- Changed the Bitwarden/KeePass, Call Noni, people outreach, and accepted tweet habits to append notes only by leaving `writeToMd` enabled and disabling `textToSpeech`.
