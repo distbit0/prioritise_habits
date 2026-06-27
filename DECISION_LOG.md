@@ -20,3 +20,6 @@
 
 ## 2026-06-25
 - Added phone audio coordination for TTS batches through the MacroDroid audio toggle trigger. The script pauses phone audio once, waits 10 seconds, plays the queued habit audio sequentially, then waits 10 seconds and sends `state=play` once after the batch attempt finishes.
+
+## 2026-06-27
+- Disabled `reply-to-unread-msg` by removing it from `active_habits.json` and clearing its generated entries from the current daily trigger schedule. Historical check-ins remain in `habits_store.json`.
