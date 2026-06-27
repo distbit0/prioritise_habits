@@ -1,7 +1,7 @@
 [
   {
     "id": "66dacd5fdce64115dd651851",
-    "name": "1. save `bitwarden` > keepas, scrshot droid apps",
+    "name": "1. save `bitwarden` > keepas, scrshot droid apps, kepas > usb",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=30",
     "reminders": [
       "06:00"
@@ -136,7 +136,7 @@
   },
   {
     "id": "journal-emotions-daily",
-    "name": "1. journal about recent ideas/reading, feelings, and what went wrong [[journal-alexs]]",
+    "name": "3. journal about recent ideas/reading, feelings, and what went wrong [[journal-alexs]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260607,
@@ -149,7 +149,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 1,
+    "sortOrder": 3,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -169,7 +169,7 @@
   },
   {
     "id": "post-tweet-from-tweet-ideas-accepted-daily",
-    "name": "2. post tweet from [[tweet-ideas-accepted]]",
+    "name": "4. post tweet from [[tweet-ideas-accepted]]",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=1",
     "reminders": [],
     "targetStartDate": 20260611,
@@ -182,7 +182,7 @@
       "desktopNotification": false,
       "textToSpeech": false
     },
-    "sortOrder": 2,
+    "sortOrder": 4,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -664,7 +664,7 @@
   },
   {
     "id": "dating-reference-and-validate",
-    "name": "Reference things she said earlier to prove you listened; validate her feelings without validating her approach if disagreeing.",
+    "name": "1. Reference things she said earlier to prove you listened; validate her feelings without validating her approach if disagreeing.",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=20",
     "reminders": [],
     "targetStartDate": 20260626,
@@ -677,7 +677,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 24,
+    "sortOrder": 1,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -697,7 +697,7 @@
   },
   {
     "id": "dating-nonliteral-worldbuilding",
-    "name": "Answer questions with funny non-literal or obviously untrue responses; build and extend hypothetical funny worlds from her comments.",
+    "name": "5. Answer questions with funny non-literal or obviously untrue responses; build and extend hypothetical funny worlds from her comments.",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=20",
     "reminders": [],
     "targetStartDate": 20260627,
@@ -710,7 +710,7 @@
       "desktopNotification": false,
       "textToSpeech": true
     },
-    "sortOrder": 25,
+    "sortOrder": 5,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
@@ -862,7 +862,7 @@
   },
   {
     "id": "twitter-2043018085700157500-audio",
-    "name": "2. twitter 2043018085700157500 audio",
+    "name": "6. twitter 2043018085700157500 audio",
     "repeatRule": "RRULE:FREQ=DAILY;INTERVAL=2",
     "reminders": [],
     "targetStartDate": 20260613,
@@ -876,7 +876,7 @@
       "textToSpeech": true
     },
     "audioFile": "audio/twitter_2043018085700157500_audio.mp3",
-    "sortOrder": 2,
+    "sortOrder": 6,
     "status": 0,
     "archivedTime": null,
     "iconRes": "habit_daily_check_in",
